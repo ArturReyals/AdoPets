@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdoPet – Sobre Nós</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --rosa: #A61C5D;
+            --amarelo: #ffd801;
+            --cinza-fundo: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--cinza-fundo);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* ===== MENU E HEADER ===== */
+        .top-bar { width: 100%; height: 7px; background: var(--rosa); }
+        .main-header { background-color: white; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        .menu-wrapper { display: flex; align-items: center; gap: 15px; }
+        .hidden-buttons-container {
+            display: flex; gap: 15px; overflow: hidden;
+            max-width: 0; opacity: 0;
+            transition: max-width 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
+            white-space: nowrap;
+        }
+        .hidden-buttons-container.mostrar { max-width: 1000px; opacity: 1; }
+        .btn-menu-oculto {
+            background-color: white; color: var(--rosa); border: none;
+            font-weight: 600; padding: 8px 12px; transition: all 0.3s ease; text-decoration: none;
+        }
+        .btn-menu-oculto:hover { color: var(--amarelo); }
+        .btn-menu-toggle { background-color: var(--rosa); color: white; border-radius: 36px; transition: 0.3s; }
+        .btn-menu-toggle:hover { background-color: #8e1750; color: white; }
+
+        /* ===== SOBRE NÓS: COMPONENTES ===== */
+        .stats-block { text-align: center; padding: 20px 0; }
+        .stats-block h2 { color: var(--rosa); font-weight: 800; font-size: 2.5rem; margin-bottom: 5px; }
+        .stats-block p { color: #666; font-size: 15px; font-weight: 500; }
+
+        .about-card {
+            background: white; border: none; border-radius: 15px;
+            padding: 30px 20px; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s;
+            height: 100%;
+        }
+        .about-card:hover { transform: translateY(-5px); }
+        .about-icon {
+            width: 70px; height: 70px; background-color: #fffafc;
+            color: var(--rosa); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 30px; margin: 0 auto 20px auto;
+        }
+
+        .team-card {
+            background: white; border: none; border-radius: 15px;
+            overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center; transition: 0.3s;
+        }
+        .team-card:hover { transform: translateY(-5px); }
+        .team-card img { width: 100%; height: 250px; object-fit: cover; }
+        .team-card .card-body { padding: 20px; }
+        .team-role { color: var(--rosa); font-size: 13px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+
+        /* ===== FOOTER ===== */
+        .main-footer { background-color: #212529; color: white; padding: 60px 0 20px 0; }
+        .footer-link { color: #bbb; text-decoration: none; transition: color 0.3s; }
+        .footer-link:hover { color: var(--amarelo); }
+        .footer-social { color: white; font-size: 24px; transition: color 0.3s; }
+        .footer-social:hover { color: var(--amarelo); }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar"></div>
+
+    <header class="main-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="../index.html">
+                <img src="../assets/images/aaa.png" alt="Logo AdoPet" style="height: 60px; object-fit: contain;">
+            </a>
+
+            <div class="menu-wrapper">
+                <div class="hidden-buttons-container" id="botoesOcultos">
+                    <a href="../index.html" class="btn btn-menu-oculto">Início</a>
+                    <a href="./pets.html" class="btn btn-menu-oculto">Encontrar um Pet</a>
+                    <a href="./sobre.html" class="btn btn-menu-oculto">Sobre Nós</a>
+                    <a href="./doacoes.html" class="btn btn-menu-oculto">Doações</a>
+                </div>
+
+                <div class="btn-login-header"></div>
+
+                <button class="btn btn-menu-toggle" id="btnMenuToggle" onclick="toggleMenu()">
+                    <i class="bi bi-list fs-4" id="iconeMenu"></i>
+                </button>   
+            </div>
+        </div>
+    </header>
+
+    <section style="background-color: #ffd801; padding: 60px 0; text-align: center;">
+        <div class="container">
+            <h1 style="color: #A61C5D; font-weight: 800; font-size: 2.5rem;">Sobre a 4PatasFortaleza</h1>
+            <p style="color: #A61C5D; font-size: 1.2rem; margin-top: 10px; font-weight: 500;">
+                Conheça nossa história e a missão que nos move todos os dias
+            </p>
+        </div>
+    </section>
+
+    <section class="container" style="margin-top: 40px; margin-bottom: 60px;">
+        <div class="row text-center g-4">
+            <div class="col-md-3 col-6 stats-block">
+                <h2>+1.200</h2>
+                <p>Pets adotados</p>
+            </div>
+            <div class="col-md-3 col-6 stats-block border-start">
+                <h2>8</h2>
+                <p>Anos de história</p>
+            </div>
+            <div class="col-md-3 col-6 stats-block border-start d-none d-md-block">
+                <h2>+300</h2>
+                <p>Voluntários ativos</p>
+            </div>
+            <div class="col-md-3 col-6 stats-block border-start d-none d-md-block">
+                <h2>4</h2>
+                <p>Cidades atendidas</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container" style="margin-bottom: 80px;">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span style="background-color: var(--amarelo); color: var(--rosa); font-weight: bold; padding: 5px 15px; border-radius: 20px; font-size: 14px;">Nossa História</span>
+                <h3 style="color: #333; font-weight: 800; margin-top: 15px; margin-bottom: 20px;">Nascemos do amor pelos animais</h3>
+                <p style="color: #666; line-height: 1.8;">
+                    A <strong>4PatasFortaleza</strong> nasceu em 2017 a partir de um grupo de amigos apaixonados por animais que não podiam mais fechar os olhos para a quantidade de cães e gatos abandonados nas ruas de Fortaleza e região metropolitana.
+                </p>
+                <p style="color: #666; line-height: 1.8;">
+                    O que começou como resgates informais nos finais de semana rapidamente se transformou em uma rede de apoio sólida. Hoje, contamos com abrigos parceiros, clínicas veterinárias aliadas e uma legião de voluntários dedicados a reabilitar e encontrar lares cheios de amor para cada um dos nossos peludos.
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <img src="../assets/images/resgate.png" alt="Equipe resgatando animais" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            </div>
+        </div>
+    </section>
+
+    <section style="background-color: white; padding: 80px 0;">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="about-card">
+                        <div class="about-icon"><i class="bi bi-bullseye"></i></div>
+                        <h4 class="fw-bold" style="color: #333;">Nossa Missão</h4>
+                        <p class="text-muted mt-3" style="font-size: 15px;">Resgatar, reabilitar e promover a adoção responsável de cães e gatos em situação de abandono, garantindo a eles uma segunda chance de serem felizes.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="about-card">
+                        <div class="about-icon"><i class="bi bi-eye"></i></div>
+                        <h4 class="fw-bold" style="color: #333;">Nossa Visão</h4>
+                        <p class="text-muted mt-3" style="font-size: 15px;">Ser referência no bem-estar animal no estado do Ceará, sonhando com um futuro onde nenhum animal precise sofrer nas ruas por falta de amor e cuidado.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="about-card">
+                        <div class="about-icon"><i class="bi bi-heart"></i></div>
+                        <h4 class="fw-bold" style="color: #333;">Nossos Valores</h4>
+                        <p class="text-muted mt-3" style="font-size: 15px;">Amor incondicional à vida, responsabilidade social, transparência em nossas ações e empatia tanto com os animais quanto com as famílias adotantes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container" style="margin-top: 80px; margin-bottom: 80px;">
+        <div class="text-center mb-5">
+            <h3 style="color: #333; font-weight: 800;">Quem faz acontecer</h3>
+            <p style="color: #666;">Conheça alguns dos rostos por trás da nossa instituição</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="team-card">
+                    <img src="../assets/images/ceo.png" alt="Foto Colaborador">
+                    <div class="card-body">
+                        <div class="team-role">Fundadora / Presidência</div>
+                        <h5 class="fw-bold text-dark">Ana Silva</h5>
+                        <p class="text-muted" style="font-size: 13px;">Idealizadora do projeto, dedica sua vida a dar voz aos animais.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="team-card">
+                    <img src="../assets/images/veterinario.png" alt="Foto Colaborador">
+                    <div class="card-body">
+                        <div class="team-role">Veterinário Chefe</div>
+                        <h5 class="fw-bold text-dark">Dr. Rodrigo Silva</h5>
+                        <p class="text-muted" style="font-size: 13px;">Responsável por cuidar da saúde e reabilitação dos nossos resgatados.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="team-card">
+                    <img src="../assets/images/coord_volunt.png" alt="Foto Colaborador">
+                    <div class="card-body">
+                        <div class="team-role">Coord. de Voluntários</div>
+                        <h5 class="fw-bold text-dark">Beatriz Souza</h5>
+                        <p class="text-muted" style="font-size: 13px;">Organiza nossa rede de amor e treinamentos com voluntários.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="team-card">
+                    <img src="../assets/images/estagiario.png" alt="Foto Colaborador">
+                    <div class="card-body">
+                        <div class="team-role">Gestor de Adoções</div>
+                        <h5 class="fw-bold text-dark">Lucas Andrade</h5>
+                        <p class="text-muted" style="font-size: 13px;">Faz a ponte perfeita entre as famílias e os pets que aguardam um lar.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h4 class="fw-bold" style="color: var(--amarelo);">4PatasFortaleza</h4>
+                    <p style="font-size:14px;color:#bbb;margin-top:15px;">
+                        Fundação dedicada a garantir que cães e gatos encontrem um lar seguro, carinhoso e cheio de amor. Adote e transforme uma vida!
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Acesso Rápido</h5>
+                    <ul class="list-unstyled" style="line-height: 2;">
+                        <li><a href="pets.html" class="footer-link">Encontrar um Pet</a></li>
+                        <li><a href="../index.html#como-funciona" class="footer-link">Como Funciona</a></li>
+                        <li><a href="sobre.html" class="footer-link">Sobre Nós</a></li>
+                        <li><a href="doacoes.html" class="footer-link">Doações</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Redes Sociais</h5>
+                    <div class="d-flex gap-3">
+                        <a href="https://www.facebook.com/" target="_blank" class="footer-social"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/" target="_blank" class="footer-social"><i class="bi bi-instagram"></i></a>
+                        <a href="https://web.whatsapp.com/" target="_blank" class="footer-social"><i class="bi bi-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr style="border-color: #444; margin-top: 40px; margin-bottom: 20px;">
+            <div class="text-center" style="color: #777; font-size: 13px;">
+                &copy; 2026 4PatasFortaleza. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+<script src="../assets/js/auth.js"></script>
+</script>
+
+    <script>
+        function toggleMenu() {
+            const container = document.getElementById('botoesOcultos');
+            const icone = document.getElementById('iconeMenu');
+            
+            if (container.classList.contains('mostrar')) {
+                container.classList.remove('mostrar');
+                icone.classList.remove('bi-x');
+                icone.classList.add('bi-list');
+            } else {
+                container.classList.add('mostrar');
+                icone.classList.remove('bi-list');
+                icone.classList.add('bi-x');
+            }
+        }
+    Auth.renderHeaderUser();
+</script>
+</body>
+</html>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdoPet – Doações</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        :root { --rosa:#A61C5D; --amarelo:#ffd801; --cinza-fundo:#f8f9fa; }
+        body { background-color:var(--cinza-fundo); font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; }
+        .top-bar { width:100%; height:7px; background:var(--rosa); }
+        .main-header { background-color:white; padding:15px 0; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+        .hidden-buttons-container { display:flex; gap:15px; overflow:hidden; max-width:0; opacity:0; transition:max-width 0.6s cubic-bezier(0.25,1,0.5,1), opacity 0.4s ease; white-space:nowrap; }
+        .hidden-buttons-container.mostrar { max-width:1000px; opacity:1; }
+        .btn-menu-oculto { background-color:white; color:var(--rosa); border:none; font-weight:600; padding:8px 12px; transition:all 0.3s ease; text-decoration:none; }
+        .btn-menu-oculto:hover { color:var(--amarelo); }
+
+        .hero-doacoes { background-color:var(--amarelo); padding:70px 0 90px; text-align:center; }
+        .hero-doacoes h1 { color:var(--rosa); font-weight:800; font-size:2.8rem; }
+        .hero-doacoes p { color:var(--rosa); font-size:1.2rem; margin-top:12px; }
+
+        .main-card {
+            background:white; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.08);
+            padding:40px; margin-top:-50px; position:relative; z-index:10;
+        }
+
+        /* VALORES RÁPIDOS */
+        .valor-btn {
+            border:2px solid #eee; border-radius:16px; padding:14px 20px;
+            cursor:pointer; font-weight:700; font-size:18px; color:#555;
+            background:white; transition:all 0.2s; text-align:center;
+        }
+        .valor-btn:hover { border-color:var(--rosa); color:var(--rosa); }
+        .valor-btn.selected { background:var(--rosa); color:white; border-color:var(--rosa); }
+        .valor-btn small { display:block; font-size:12px; font-weight:400; margin-top:2px; }
+
+        /* MÉTODOS DE PAGAMENTO */
+        .metodo-btn {
+            border:2px solid #eee; border-radius:16px; padding:16px;
+            cursor:pointer; background:white; transition:all 0.2s; text-align:center;
+        }
+        .metodo-btn:hover { border-color:var(--rosa); }
+        .metodo-btn.selected { border-color:var(--rosa); background:#fff5f9; }
+        .metodo-btn i { font-size:28px; color:var(--rosa); margin-bottom:8px; display:block; }
+        .metodo-btn span { font-size:13px; font-weight:600; color:#555; }
+
+        /* PIX */
+        .pix-box { background:var(--cinza-fundo); border-radius:16px; padding:24px; text-align:center; }
+        .pix-qr {
+            width:160px; height:160px; margin:0 auto 16px;
+            background:white; border-radius:12px; border:2px solid #eee;
+            display:flex; align-items:center; justify-content:center;
+            font-size:10px; color:#aaa; padding:8px;
+        }
+        .pix-key { background:white; border:1.5px solid #ddd; border-radius:10px; padding:12px 16px; font-family:monospace; font-size:13px; color:#333; word-break:break-all; }
+
+        /* CARTÃO */
+        .card-visual {
+            background:linear-gradient(135deg, var(--rosa), #7b1042);
+            border-radius:18px; padding:24px 28px; color:white; position:relative; overflow:hidden;
+            box-shadow:0 8px 30px rgba(166,28,93,0.35); margin-bottom:20px;
+        }
+        .card-visual::before { content:''; position:absolute; right:-30px; top:-30px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.07); }
+        .card-visual::after { content:''; position:absolute; right:20px; bottom:-40px; width:100px; height:100px; border-radius:50%; background:rgba(255,255,255,0.05); }
+        .card-number { font-size:18px; letter-spacing:4px; margin:20px 0 10px; font-family:monospace; }
+        .card-info { display:flex; justify-content:space-between; font-size:13px; opacity:0.8; }
+
+        /* TELAS */
+        .screen { display:none; animation:fadeIn 0.4s ease; }
+        .screen.active { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        /* SUCESSO */
+        .success-heart { width:100px; height:100px; background:var(--amarelo); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 24px; }
+
+        /* IMPACTO */
+        .impacto-card { background:white; border-radius:16px; padding:20px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.05); }
+        .impacto-icon { width:56px; height:56px; background:var(--amarelo); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+
+        /* BTNs */
+        .btn-rosa { background-color:var(--rosa); color:white; border-radius:30px; padding:12px 32px; font-weight:700; border:none; transition:all 0.3s; }
+        .btn-rosa:hover { background-color:#8e1750; color:white; transform:translateY(-2px); }
+        .btn-amarelo { background-color:var(--amarelo); color:var(--rosa); border-radius:30px; padding:12px 32px; font-weight:700; border:none; transition:all 0.3s; }
+        .btn-amarelo:hover { background-color:#e6c200; color:var(--rosa); transform:translateY(-2px); }
+
+        /* FOOTER */
+        .main-footer { background-color:#212529; color:white; padding:60px 0 20px 0; }
+        .footer-link { color:#bbb; text-decoration:none; transition:color 0.3s; }
+        .footer-link:hover { color:var(--amarelo); }
+        .footer-social { color:white; font-size:24px; transition:color 0.3s; }
+        .footer-social:hover { color:var(--amarelo); }
+
+        /* LOADING */
+        .spinner-rosa { color:var(--rosa); }
+
+        @media(max-width:576px){
+            .main-card { padding:24px 16px; margin-top:-30px; }
+            .hero-doacoes h1 { font-size:2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="top-bar"></div>
+<header class="main-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="../index.html">
+            <img src="../assets/images/aaa.png" alt="Logo AdoPet" style="height:60px;object-fit:contain;">
+        </a>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div class="hidden-buttons-container" id="botoesOcultos">
+                <a href="../index.html" class="btn btn-menu-oculto">Início</a>
+                <a href="./pets.html" class="btn btn-menu-oculto">Encontrar um Pet</a>
+                <a href="./sobre.html" class="btn btn-menu-oculto">Sobre Nós</a>
+                <a href="./doacoes.html" class="btn btn-menu-oculto">Doações</a>
+                <a href="./agendamento.html" class="btn btn-menu-oculto">Agendar Visita</a>
+            </div>
+            <div class="btn-login-header"></div>
+            <button class="btn" style="background-color:var(--rosa);color:white;border-radius:36px;" id="btnMenuToggle">
+                <i class="bi bi-list fs-4" id="iconeMenu"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<section class="hero-doacoes">
+    <div class="container">
+        <h1><i class="bi bi-heart-fill me-2"></i>Faça uma Doação</h1>
+        <p>Cada contribuição ajuda a alimentar, vacinar e cuidar de nossos pets à espera de um lar.</p>
+    </div>
+</section>
+
+<div class="container" style="max-width:700px;margin-bottom:80px;">
+    <div class="main-card">
+
+        <!-- TELA 1: FORMULÁRIO DE DOAÇÃO -->
+        <div class="screen active" id="tela-doacao">
+
+            <!-- IMPACTO -->
+            <div class="row g-3 mb-4">
+                <div class="col-4">
+                    <div class="impacto-card">
+                        <div class="impacto-icon"><i class="bi bi-cup-hot" style="color:var(--rosa);font-size:22px;"></i></div>
+                        <div style="font-size:13px;font-weight:700;color:var(--rosa);">R$ 20</div>
+                        <div style="font-size:11px;color:#888;">alimenta 1 pet por 1 semana</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="impacto-card">
+                        <div class="impacto-icon"><i class="bi bi-bandaid" style="color:var(--rosa);font-size:22px;"></i></div>
+                        <div style="font-size:13px;font-weight:700;color:var(--rosa);">R$ 50</div>
+                        <div style="font-size:11px;color:#888;">cobre 1 consulta veterinária</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="impacto-card">
+                        <div class="impacto-icon"><i class="bi bi-shield-check" style="color:var(--rosa);font-size:22px;"></i></div>
+                        <div style="font-size:13px;font-weight:700;color:var(--rosa);">R$ 100</div>
+                        <div style="font-size:11px;color:#888;">paga vacinas de 1 pet</div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold mb-1" style="color:var(--rosa);">Escolha o Valor</h5>
+            <p class="text-muted mb-3" style="font-size:14px;">Selecione um valor ou digite outro.</p>
+
+            <div class="row g-3 mb-3" id="valoresRapidos">
+                <div class="col-4"><div class="valor-btn" onclick="selecionarValor(20, this)">R$ 20<small>1 semana de ração</small></div></div>
+                <div class="col-4"><div class="valor-btn" onclick="selecionarValor(50, this)">R$ 50<small>1 consulta vet</small></div></div>
+                <div class="col-4"><div class="valor-btn" onclick="selecionarValor(100, this)">R$ 100<small>Kit vacinas</small></div></div>
+                <div class="col-4"><div class="valor-btn" onclick="selecionarValor(200, this)">R$ 200<small>Castração</small></div></div>
+                <div class="col-4"><div class="valor-btn" onclick="selecionarValor(500, this)">R$ 500<small>Tratamento completo</small></div></div>
+                <div class="col-4">
+                    <div class="valor-btn" id="btnOutroValor" onclick="ativarOutroValor()" style="font-size:14px;">
+                        <i class="bi bi-pencil" style="font-size:20px;display:block;margin-bottom:4px;"></i>Outro valor
+                    </div>
+                </div>
+            </div>
+
+            <div id="campoOutroValor" style="display:none;" class="mb-3">
+                <label class="form-label fw-semibold">Digite o valor (R$) *</label>
+                <input type="number" class="form-control" id="valorPersonalizado" placeholder="Ex: 75" min="5" style="border-radius:12px;" oninput="atualizarValorPersonalizado()">
+            </div>
+
+            <hr class="my-4">
+            <h5 class="fw-bold mb-3" style="color:var(--rosa);">Seus Dados</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nome *</label>
+                    <input type="text" class="form-control" id="doadorNome" placeholder="Seu nome" style="border-radius:12px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">E-mail *</label>
+                    <input type="email" class="form-control" id="doadorEmail" placeholder="seu@email.com" style="border-radius:12px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">CPF (opcional)</label>
+                    <input type="text" class="form-control" id="doadorCpf" placeholder="000.000.000-00" maxlength="14" style="border-radius:12px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Telefone (opcional)</label>
+                    <input type="text" class="form-control" id="doadorTel" placeholder="(85) 9 0000-0000" maxlength="16" style="border-radius:12px;">
+                </div>
+                <div class="col-12">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="doacaoAnonima" onchange="toggleAnonimo()">
+                        <label class="form-check-label" for="doacaoAnonima" style="font-size:14px;">Quero fazer minha doação de forma anônima</label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h5 class="fw-bold mb-3" style="color:var(--rosa);">Forma de Pagamento</h5>
+            <div class="row g-3 mb-4" id="metodosBtns">
+                <div class="col-4"><div class="metodo-btn" onclick="selecionarMetodo('pix', this)"><i class="bi bi-qr-code"></i><span>PIX</span></div></div>
+                <div class="col-4"><div class="metodo-btn" onclick="selecionarMetodo('credito', this)"><i class="bi bi-credit-card"></i><span>Cartão de Crédito</span></div></div>
+                <div class="col-4"><div class="metodo-btn" onclick="selecionarMetodo('debito', this)"><i class="bi bi-bank"></i><span>Cartão de Débito</span></div></div>
+            </div>
+
+            <!-- PIX -->
+            <div id="painel-pix" style="display:none;">
+                <div class="pix-box">
+                    <p class="text-muted mb-3" style="font-size:14px;">Escaneie o QR Code ou copie a chave PIX abaixo.</p>
+                    <div class="pix-qr">
+                        <svg viewBox="0 0 100 100" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
+                            <!-- QR simulado decorativo -->
+                            <rect width="100" height="100" fill="white"/>
+                            <rect x="10" y="10" width="30" height="30" fill="none" stroke="#A61C5D" stroke-width="3"/>
+                            <rect x="15" y="15" width="20" height="20" fill="#A61C5D"/>
+                            <rect x="60" y="10" width="30" height="30" fill="none" stroke="#A61C5D" stroke-width="3"/>
+                            <rect x="65" y="15" width="20" height="20" fill="#A61C5D"/>
+                            <rect x="10" y="60" width="30" height="30" fill="none" stroke="#A61C5D" stroke-width="3"/>
+                            <rect x="15" y="65" width="20" height="20" fill="#A61C5D"/>
+                            <rect x="45" y="10" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="45" y="20" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="45" y="30" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="55" y="45" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="65" y="45" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="75" y="45" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="45" y="55" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="55" y="65" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="65" y="75" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="75" y="55" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="85" y="65" width="5" height="5" fill="#A61C5D"/>
+                            <rect x="55" y="55" width="5" height="5" fill="#ffd801"/>
+                        </svg>
+                    </div>
+                    <p style="font-size:12px;color:#888;margin-bottom:8px;">Chave PIX (CNPJ):</p>
+                    <div class="pix-key">00.000.000/0001-00 – 4PatasFortaleza</div>
+                    <button class="btn btn-rosa mt-3" style="font-size:14px;" onclick="copiarPix()">
+                        <i class="bi bi-clipboard me-2"></i>Copiar Chave PIX
+                    </button>
+                    <div id="copiado-msg" style="display:none;color:green;font-size:13px;margin-top:8px;"><i class="bi bi-check-circle me-1"></i>Chave copiada!</div>
+                    <p class="mt-3" style="font-size:12px;color:#aaa;">Após efetuar o pagamento, clique em "Confirmar Doação".</p>
+                </div>
+            </div>
+
+            <!-- CRÉDITO / DÉBITO -->
+            <div id="painel-cartao" style="display:none;">
+                <!-- Visual do cartão animado -->
+                <div class="card-visual" id="cardVisual">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:13px;opacity:0.8;">AdoPet</span>
+                        <i class="bi bi-credit-card-2-front" style="font-size:24px;opacity:0.7;"></i>
+                    </div>
+                    <div class="card-number" id="cardNumDisp">•••• •••• •••• ••••</div>
+                    <div class="card-info">
+                        <div>
+                            <div style="font-size:10px;opacity:0.7;text-transform:uppercase;">Titular</div>
+                            <div id="cardNomeDisp" style="font-weight:600;font-size:14px;">SEU NOME</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px;opacity:0.7;text-transform:uppercase;">Validade</div>
+                            <div id="cardValDisp" style="font-weight:600;font-size:14px;">MM/AA</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;">
+                            <div style="width:28px;height:28px;background:rgba(255,216,1,0.6);border-radius:50%;"></div>
+                            <div style="width:28px;height:28px;background:rgba(255,216,1,0.9);border-radius:50%;margin-left:-14px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Número do Cartão *</label>
+                        <input type="text" class="form-control" id="cardNum" placeholder="0000 0000 0000 0000" maxlength="19" style="border-radius:12px;" oninput="formatarCartao(this)">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Nome no Cartão *</label>
+                        <input type="text" class="form-control" id="cardNome" placeholder="Como no cartão" style="border-radius:12px;" oninput="document.getElementById('cardNomeDisp').textContent=this.value.toUpperCase()||'SEU NOME'">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Validade *</label>
+                        <input type="text" class="form-control" id="cardVal" placeholder="MM/AA" maxlength="5" style="border-radius:12px;" oninput="formatarValidade(this)">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">CVV *</label>
+                        <input type="text" class="form-control" id="cardCvv" placeholder="•••" maxlength="4" style="border-radius:12px;">
+                    </div>
+                    <div id="parcelasDiv" style="display:none;" class="col-12">
+                        <label class="form-label fw-semibold">Parcelamento</label>
+                        <select class="form-select" id="parcelas" style="border-radius:12px;"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-4">
+                <button class="btn btn-rosa btn-lg" onclick="processar()">
+                    <i class="bi bi-heart-fill me-2"></i>Confirmar Doação
+                </button>
+            </div>
+        </div>
+
+        <!-- TELA 2: PROCESSANDO -->
+        <div class="screen" id="tela-processando">
+            <div class="text-center py-5">
+                <div class="spinner-border spinner-rosa mb-4" role="status" style="width:60px;height:60px;"></div>
+                <h5 class="fw-bold" style="color:var(--rosa);">Processando sua doação...</h5>
+                <p class="text-muted" id="processMsgText">Verificando dados de pagamento...</p>
+                <div class="progress mt-3" style="height:8px;border-radius:8px;">
+                    <div class="progress-bar" id="processBar" role="progressbar" style="width:0%;background:var(--rosa);border-radius:8px;transition:width 0.5s ease;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA 3: SUCESSO -->
+        <div class="screen" id="tela-sucesso">
+            <div class="text-center">
+                <div class="success-heart">
+                    <i class="bi bi-heart-fill" style="font-size:46px;color:var(--rosa);"></i>
+                </div>
+                <h3 class="fw-bold mb-2" style="color:var(--rosa);">Muito Obrigado!</h3>
+                <p class="text-muted mb-1" id="msg-agradecimento">Sua doação foi confirmada com sucesso. ❤️</p>
+                <p class="text-muted" style="font-size:14px;">Um e-mail de confirmação foi enviado para <strong id="email-confirmacao"></strong></p>
+
+                <div style="background:var(--cinza-fundo);border-radius:16px;padding:20px;margin:24px 0;">
+                    <div style="font-size:36px;font-weight:800;color:var(--rosa);" id="valor-confirmado">—</div>
+                    <div style="color:#888;font-size:14px;">Valor doado</div>
+                    <div style="margin-top:12px;font-size:13px;color:#555;" id="metodo-confirmado">—</div>
+                    <div style="font-size:12px;color:#aaa;" id="protocolo-doacao">—</div>
+                </div>
+
+                <!-- Impacto da doação -->
+                <div id="impacto-msg" style="background:#fff9e6;border:1.5px solid var(--amarelo);border-radius:12px;padding:16px;text-align:left;margin-bottom:24px;">
+                    <strong style="color:var(--rosa);"><i class="bi bi-stars me-2"></i>Com sua doação você vai...</strong>
+                    <ul id="impacto-lista" style="margin-top:10px;padding-left:20px;font-size:14px;color:#555;"></ul>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="../index.html" class="btn btn-amarelo">Voltar ao Início</a>
+                    <a href="./pets.html" class="btn btn-rosa">Ver Pets para Adoção</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="main-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h4 class="fw-bold" style="color:var(--amarelo);">4PatasFortaleza</h4>
+                <p style="font-size:14px;color:#bbb;margin-top:15px;">Fundação dedicada a garantir que cães e gatos encontrem um lar seguro e cheio de amor.</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-3">Acesso Rápido</h5>
+                <ul class="list-unstyled" style="line-height:2;">
+                    <li><a href="./pets.html" class="footer-link">Encontrar um Pet</a></li>
+                    <li><a href="./sobre.html" class="footer-link">Sobre Nós</a></li>
+                    <li><a href="./doacoes.html" class="footer-link">Doações</a></li>
+                    <li><a href="./agendamento.html" class="footer-link">Agendar Visita</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-3">Redes Sociais</h5>
+                <div class="d-flex gap-3">
+                    <a href="https://www.facebook.com/" target="_blank" class="footer-social"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.instagram.com/" target="_blank" class="footer-social"><i class="bi bi-instagram"></i></a>
+                    <a href="https://web.whatsapp.com/" target="_blank" class="footer-social"><i class="bi bi-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr style="border-color:#444;margin-top:40px;margin-bottom:20px;">
+        <div class="text-center" style="color:#777;font-size:13px;">&copy; 2026 4PatasFortaleza. Todos os direitos reservados.</div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+<script src="../assets/js/auth.js"></script>
+</script>
+<script>
+// MENU
+const btnMenu = document.getElementById('btnMenuToggle');
+const containerBotoes = document.getElementById('botoesOcultos');
+const iconeMenu = document.getElementById('iconeMenu');
+if (btnMenu) {
+    btnMenu.addEventListener('click', function() {
+        containerBotoes.classList.toggle('mostrar');
+        iconeMenu.classList.contains('bi-list')
+            ? iconeMenu.classList.replace('bi-list','bi-x-lg')
+            : iconeMenu.classList.replace('bi-x-lg','bi-list');
+    });
+}
+
+// CPF mask
+document.getElementById('doadorCpf').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g,'');
+    v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    e.target.value = v;
+});
+document.getElementById('doadorTel').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g,'');
+    v = v.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
+    e.target.value = v;
+});
+
+// VALOR
+let valorSelecionado = null;
+let metodoSelecionado = null;
+
+function selecionarValor(v, el) {
+    document.querySelectorAll('.valor-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    valorSelecionado = v;
+    document.getElementById('campoOutroValor').style.display = 'none';
+    atualizarParcelas();
+}
+
+function ativarOutroValor() {
+    document.querySelectorAll('.valor-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('btnOutroValor').classList.add('selected');
+    document.getElementById('campoOutroValor').style.display = 'block';
+    document.getElementById('valorPersonalizado').focus();
+}
+
+function atualizarValorPersonalizado() {
+    const v = parseFloat(document.getElementById('valorPersonalizado').value);
+    valorSelecionado = isNaN(v) ? null : v;
+    atualizarParcelas();
+}
+
+function selecionarMetodo(m, el) {
+    document.querySelectorAll('.metodo-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    metodoSelecionado = m;
+    document.getElementById('painel-pix').style.display = m === 'pix' ? 'block' : 'none';
+    document.getElementById('painel-cartao').style.display = (m === 'credito' || m === 'debito') ? 'block' : 'none';
+    document.getElementById('parcelasDiv').style.display = m === 'credito' ? 'block' : 'none';
+    atualizarParcelas();
+}
+
+function atualizarParcelas() {
+    if (metodoSelecionado !== 'credito' || !valorSelecionado) return;
+    const sel = document.getElementById('parcelas');
+    sel.innerHTML = '';
+    const maxParcelas = valorSelecionado >= 50 ? (valorSelecionado >= 200 ? 12 : 6) : 3;
+    for (let i = 1; i <= maxParcelas; i++) {
+        const opt = document.createElement('option');
+        const pct = i >= 7 ? (valorSelecionado / i * 1.015).toFixed(2) : (valorSelecionado / i).toFixed(2);
+        opt.value = i;
+        opt.textContent = i === 1 ? `1x de R$ ${pct} (sem juros)` : `${i}x de R$ ${pct}${i >= 7 ? ' (1,5% a.m.)' : ' (sem juros)'}`;
+        sel.appendChild(opt);
+    }
+}
+
+function formatarCartao(el) {
+    let v = el.value.replace(/\D/g,'').substring(0,16);
+    v = v.replace(/(.{4})/g,'$1 ').trim();
+    el.value = v;
+    document.getElementById('cardNumDisp').textContent = v.padEnd(19,'•').replace(/[^ •]/g,'•').replace(/ /g,' ') || '•••• •••• •••• ••••';
+    // Mostra últimos 4 dígitos reais
+    const clean = v.replace(/ /g,'');
+    const disp = clean.length > 0
+        ? '•••• •••• •••• ' + clean.slice(-4).padStart(4,'•')
+        : '•••• •••• •••• ••••';
+    document.getElementById('cardNumDisp').textContent = disp;
+}
+
+function formatarValidade(el) {
+    let v = el.value.replace(/\D/g,'');
+    if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2,4);
+    el.value = v;
+    document.getElementById('cardValDisp').textContent = v || 'MM/AA';
+}
+
+function toggleAnonimo() {
+    const anon = document.getElementById('doacaoAnonima').checked;
+    ['doadorNome','doadorEmail'].forEach(id => {
+        document.getElementById(id).disabled = anon;
+        if (anon) document.getElementById(id).value = '';
+    });
+}
+
+function copiarPix() {
+    navigator.clipboard.writeText('00.000.000/0001-00').catch(()=>{});
+    document.getElementById('copiado-msg').style.display = 'block';
+    setTimeout(() => document.getElementById('copiado-msg').style.display = 'none', 3000);
+}
+
+// ===== PROCESSAR DOAÇÃO =====
+function processar() {
+    if (!valorSelecionado || valorSelecionado < 5) { alert('Selecione ou informe um valor mínimo de R$ 5,00.'); return; }
+    const anon = document.getElementById('doacaoAnonima').checked;
+    if (!anon) {
+        const nome = document.getElementById('doadorNome').value.trim();
+        const email = document.getElementById('doadorEmail').value.trim();
+        if (!nome || !email) { alert('Preencha seu nome e e-mail para continuar.'); return; }
+    }
+    if (!metodoSelecionado) { alert('Selecione uma forma de pagamento.'); return; }
+    if ((metodoSelecionado === 'credito' || metodoSelecionado === 'debito')) {
+        const num = document.getElementById('cardNum').value.replace(/\s/g,'');
+        const nome = document.getElementById('cardNome').value.trim();
+        const val = document.getElementById('cardVal').value;
+        const cvv = document.getElementById('cardCvv').value;
+        if (num.length < 16 || !nome || val.length < 5 || cvv.length < 3) {
+            alert('Preencha todos os dados do cartão corretamente.'); return;
+        }
+    }
+
+    // Vai para tela de processamento
+    mostrarTela('tela-processando');
+    window.scrollTo({top:0,behavior:'smooth'});
+
+    const msgs = [
+        'Verificando dados de pagamento...',
+        'Conectando com a instituição financeira...',
+        'Processando transação virtual...',
+        'Confirmando doação...',
+        'Quase lá! Finalizando...'
+    ];
+    let prog = 0;
+    let msgIdx = 0;
+    const bar = document.getElementById('processBar');
+    const msg = document.getElementById('processMsgText');
+    const interval = setInterval(() => {
+        prog += 20;
+        bar.style.width = prog + '%';
+        if (msgs[msgIdx]) { msg.textContent = msgs[msgIdx++]; }
+        if (prog >= 100) {
+            clearInterval(interval);
+            setTimeout(mostrarSucesso, 500);
+        }
+    }, 600);
+}
+
+function mostrarSucesso() {
+    const anon = document.getElementById('doacaoAnonima').checked;
+    const nome = anon ? 'Anônimo' : document.getElementById('doadorNome').value;
+    const email = anon ? '—' : document.getElementById('doadorEmail').value;
+    const metodoMap = { pix:'PIX', credito:'Cartão de Crédito', debito:'Cartão de Débito' };
+
+    document.getElementById('msg-agradecimento').textContent = anon
+        ? 'Sua doação anônima foi confirmada com sucesso! ❤️'
+        : `Obrigado, ${nome}! Sua doação faz a diferença. ❤️`;
+    document.getElementById('email-confirmacao').textContent = email;
+    document.getElementById('valor-confirmado').textContent = `R$ ${valorSelecionado.toFixed(2).replace('.',',')}`;
+    document.getElementById('metodo-confirmado').textContent = `Pago via ${metodoMap[metodoSelecionado]}`;
+    document.getElementById('protocolo-doacao').textContent = `Protocolo: #DOA-${Math.floor(10000 + Math.random()*90000)}`;
+
+    // Calcular impacto
+    const lista = document.getElementById('impacto-lista');
+    lista.innerHTML = '';
+    const v = valorSelecionado;
+    const impactos = [];
+    if (v >= 20) impactos.push('🍖 Alimentar ' + Math.floor(v/20) + ' pet(s) por 1 semana');
+    if (v >= 50) impactos.push('💉 Cobrir ' + Math.floor(v/50) + ' consulta(s) veterinária(s)');
+    if (v >= 100) impactos.push('🛡️ Vacinar ' + Math.floor(v/100) + ' pet(s) completo');
+    if (v >= 200) impactos.push('✂️ Custear ' + Math.floor(v/200) + ' castração(ões)');
+    if (impactos.length === 0) impactos.push('🐾 Contribuir para o bem-estar geral dos pets da ONG');
+    impactos.forEach(i => { const li = document.createElement('li'); li.textContent = i; lista.appendChild(li); });
+
+    mostrarTela('tela-sucesso');
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function mostrarTela(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+Auth.renderHeaderUser();
+</script>
+</body>
+</html>

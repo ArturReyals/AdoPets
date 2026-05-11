@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdoPet – Agendar Visitação</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --rosa: #A61C5D;
+            --amarelo: #ffd801;
+            --cinza-fundo: #f8f9fa;
+        }
+        body { background-color: var(--cinza-fundo); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .top-bar { width: 100%; height: 7px; background: var(--rosa); }
+        .main-header { background-color: white; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .hidden-buttons-container { display:flex; gap:15px; overflow:hidden; max-width:0; opacity:0; transition: max-width 0.6s cubic-bezier(0.25,1,0.5,1), opacity 0.4s ease; white-space:nowrap; }
+        .hidden-buttons-container.mostrar { max-width:1000px; opacity:1; }
+        .btn-menu-oculto { background-color:white; color:var(--rosa); border:none; font-weight:600; padding:8px 12px; transition:all 0.3s ease; text-decoration:none; }
+        .btn-menu-oculto:hover { color:var(--amarelo); }
+
+        /* HERO */
+        .hero-agend { background-color: var(--amarelo); padding: 70px 0 90px; text-align:center; }
+        .hero-agend h1 { color: var(--rosa); font-weight:800; font-size:2.8rem; }
+        .hero-agend p { color: var(--rosa); font-size:1.2rem; margin-top:12px; }
+
+        /* CARD PRINCIPAL */
+        .agend-card {
+            background:white; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.08);
+            padding:40px; margin-top:-50px; position:relative; z-index:10;
+        }
+
+        /* STEPPER */
+        .stepper { display:flex; justify-content:center; align-items:center; gap:0; margin-bottom:40px; }
+        .step { display:flex; flex-direction:column; align-items:center; flex:1; max-width:130px; }
+        .step-circle {
+            width:44px; height:44px; border-radius:50%; border:2px solid #ddd;
+            background:white; color:#aaa; display:flex; align-items:center; justify-content:center;
+            font-weight:700; font-size:16px; transition:all 0.4s ease; position:relative; z-index:2;
+        }
+        .step.active .step-circle, .step.done .step-circle { background:var(--rosa); border-color:var(--rosa); color:white; }
+        .step-label { font-size:12px; font-weight:600; color:#aaa; margin-top:8px; text-align:center; transition:color 0.4s; }
+        .step.active .step-label, .step.done .step-label { color:var(--rosa); }
+        .step-line { flex:1; height:2px; background:#ddd; margin-bottom:20px; transition:background 0.4s; }
+        .step-line.done { background:var(--rosa); }
+
+        /* TELAS */
+        .screen { display:none; animation: fadeIn 0.4s ease; }
+        .screen.active { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        /* CALENDÁRIO */
+        .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+        .cal-header { font-size:12px; font-weight:700; color:#aaa; text-align:center; padding:6px 0; }
+        .cal-day {
+            aspect-ratio:1; border-radius:12px; border:2px solid transparent;
+            background:white; color:#333; font-weight:600; font-size:14px;
+            display:flex; align-items:center; justify-content:center;
+            cursor:pointer; transition:all 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.05);
+        }
+        .cal-day:hover:not(.disabled):not(.empty) { border-color:var(--rosa); color:var(--rosa); }
+        .cal-day.selected { background:var(--rosa); color:white; border-color:var(--rosa); }
+        .cal-day.disabled { opacity:0.35; cursor:not-allowed; background:#f5f5f5; }
+        .cal-day.empty { background:transparent; box-shadow:none; cursor:default; }
+        .cal-day.today { border-color:var(--amarelo); }
+
+        /* HORÁRIOS */
+        .time-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+        .time-slot {
+            padding:14px 8px; border-radius:14px; border:2px solid #eee;
+            text-align:center; cursor:pointer; font-weight:600; font-size:14px;
+            transition:all 0.2s; background:white;
+        }
+        .time-slot:hover:not(.occupied) { border-color:var(--rosa); color:var(--rosa); }
+        .time-slot.selected { background:var(--rosa); color:white; border-color:var(--rosa); }
+        .time-slot.occupied { opacity:0.4; cursor:not-allowed; text-decoration:line-through; background:#f5f5f5; font-size:12px; }
+
+        /* CONFIRMAÇÃO */
+        .confirm-box { background:var(--cinza-fundo); border-radius:16px; padding:24px; margin-bottom:20px; }
+        .confirm-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee; }
+        .confirm-row:last-child { border:none; }
+        .confirm-label { color:#888; font-size:14px; }
+        .confirm-value { font-weight:700; color:#333; }
+
+        /* STATUS STAGES */
+        .status-stages { margin-top:30px; }
+        .stage-item { display:flex; align-items:flex-start; gap:16px; padding:16px 0; position:relative; }
+        .stage-item:not(:last-child)::after { content:''; position:absolute; left:19px; top:52px; width:2px; height:calc(100% - 20px); background:#eee; }
+        .stage-item.done::after { background:var(--rosa); }
+        .stage-circle {
+            width:40px; height:40px; border-radius:50%; border:2px solid #ddd;
+            display:flex; align-items:center; justify-content:center; flex-shrink:0;
+            font-size:16px; background:white; color:#aaa; transition:all 0.6s;
+        }
+        .stage-item.done .stage-circle { background:var(--rosa); border-color:var(--rosa); color:white; }
+        .stage-item.current .stage-circle { border-color:var(--amarelo); color:var(--amarelo); animation:pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,216,1,0.4)} 50%{box-shadow:0 0 0 8px rgba(255,216,1,0)} }
+        .stage-text strong { display:block; font-size:15px; color:#333; }
+        .stage-text small { color:#888; font-size:13px; }
+
+        /* SUCESSO */
+        .success-icon { width:90px; height:90px; background:var(--amarelo); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+
+        /* FOOTER */
+        .main-footer { background-color:#212529; color:white; padding:60px 0 20px 0; }
+        .footer-link { color:#bbb; text-decoration:none; transition:color 0.3s; }
+        .footer-link:hover { color:var(--amarelo); }
+        .footer-social { color:white; font-size:24px; transition:color 0.3s; }
+        .footer-social:hover { color:var(--amarelo); }
+
+        /* BTN PRIMÁRIO */
+        .btn-rosa { background-color:var(--rosa); color:white; border-radius:30px; padding:12px 32px; font-weight:700; border:none; transition:all 0.3s; }
+        .btn-rosa:hover { background-color:#8e1750; color:white; transform:translateY(-2px); }
+        .btn-amarelo { background-color:var(--amarelo); color:var(--rosa); border-radius:30px; padding:12px 32px; font-weight:700; border:none; transition:all 0.3s; }
+        .btn-amarelo:hover { background-color:#e6c200; color:var(--rosa); transform:translateY(-2px); }
+
+        @media(max-width:576px){
+            .time-grid { grid-template-columns:repeat(2,1fr); }
+            .agend-card { padding:24px 16px; }
+            .hero-agend h1 { font-size:2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="top-bar"></div>
+<header class="main-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="../index.html">
+            <img src="../assets/images/aaa.png" alt="Logo AdoPet" style="height:60px;object-fit:contain;">
+        </a>
+        <div class="menu-wrapper" style="display:flex;align-items:center;gap:10px;">
+            <div class="hidden-buttons-container" id="botoesOcultos">
+                <a href="../index.html" class="btn btn-menu-oculto">Início</a>
+                <a href="./pets.html" class="btn btn-menu-oculto">Encontrar um Pet</a>
+                <a href="./sobre.html" class="btn btn-menu-oculto">Sobre Nós</a>
+                <a href="./doacoes.html" class="btn btn-menu-oculto">Doações</a>
+                <a href="./agendamento.html" class="btn btn-menu-oculto">Agendar Visita</a>
+            </div>
+            <div class="btn-login-header"></div>
+            <button class="btn" style="background-color:var(--rosa);color:white;border-radius:36px;" id="btnMenuToggle">
+                <i class="bi bi-list fs-4" id="iconeMenu"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<section class="hero-agend">
+    <div class="container">
+        <h1><i class="bi bi-calendar-heart me-2"></i>Agendar Visitação</h1>
+        <p>Venha conhecer nossos pets pessoalmente! Escolha o melhor dia e horário para sua visita.</p>
+    </div>
+</section>
+
+<div class="container" style="max-width:760px; margin-bottom:80px;">
+    <div class="agend-card">
+
+        <!-- STEPPER -->
+        <div class="stepper">
+            <div class="step active" id="step1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Seus Dados</div>
+            </div>
+            <div class="step-line" id="line1"></div>
+            <div class="step" id="step2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Data & Hora</div>
+            </div>
+            <div class="step-line" id="line2"></div>
+            <div class="step" id="step3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Confirmação</div>
+            </div>
+            <div class="step-line" id="line3"></div>
+            <div class="step" id="step4">
+                <div class="step-circle"><i class="bi bi-check-lg" style="font-size:14px;"></i></div>
+                <div class="step-label">Concluído</div>
+            </div>
+        </div>
+
+        <!-- TELA 1: DADOS PESSOAIS -->
+        <div class="screen active" id="screen1">
+            <h5 class="fw-bold mb-1" style="color:var(--rosa);">Seus Dados</h5>
+            <p class="text-muted mb-4" style="font-size:14px;">Preencha suas informações para o agendamento.</p>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nome Completo *</label>
+                    <input type="text" class="form-control" id="nome" placeholder="Ex: Maria Silva" style="border-radius:12px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">CPF *</label>
+                    <input type="text" class="form-control" id="cpf" placeholder="000.000.000-00" maxlength="14" style="border-radius:12px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">E-mail *</label>
+                    <input type="email" class="form-control" id="email" placeholder="seu@email.com" style="border-radius:12px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Telefone / WhatsApp *</label>
+                    <input type="text" class="form-control" id="telefone" placeholder="(85) 9 9999-9999" maxlength="16" style="border-radius:12px;">
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Motivo da Visita</label>
+                    <select class="form-select" id="motivo" style="border-radius:12px;">
+                        <option value="">Selecione...</option>
+                        <option value="adocao">Interesse em adoção</option>
+                        <option value="conhecer">Conhecer os pets</option>
+                        <option value="voluntario">Ser voluntário</option>
+                        <option value="doacao">Entregar doação</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Pet de interesse (opcional)</label>
+                    <input type="text" class="form-control" id="petInteresse" placeholder="Ex: Bolinha, Thor, Luna..." style="border-radius:12px;">
+                </div>
+            </div>
+            <div class="text-end mt-4">
+                <button class="btn btn-rosa" onclick="irParaTela(2)">Próximo <i class="bi bi-arrow-right ms-1"></i></button>
+            </div>
+        </div>
+
+        <!-- TELA 2: DATA & HORA -->
+        <div class="screen" id="screen2">
+            <h5 class="fw-bold mb-1" style="color:var(--rosa);">Escolha a Data</h5>
+            <p class="text-muted mb-4" style="font-size:14px;">Disponível de terça a sábado, exceto feriados.</p>
+
+            <!-- Navegação do mês -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-sm" style="border-radius:50%;width:36px;height:36px;border:1px solid #ddd;" onclick="mudarMes(-1)"><i class="bi bi-chevron-left"></i></button>
+                <span class="fw-bold" id="mesAtual" style="color:var(--rosa);font-size:18px;"></span>
+                <button class="btn btn-sm" style="border-radius:50%;width:36px;height:36px;border:1px solid #ddd;" onclick="mudarMes(1)"><i class="bi bi-chevron-right"></i></button>
+            </div>
+
+            <div class="calendar-grid mb-2" id="calHeaders"></div>
+            <div class="calendar-grid" id="calGrid"></div>
+
+            <div id="secaoHorarios" style="display:none;">
+                <h5 class="fw-bold mt-4 mb-1" style="color:var(--rosa);">Escolha o Horário</h5>
+                <p class="text-muted mb-3" style="font-size:14px;">Horários <span style="text-decoration:line-through;color:#aaa;">riscados</span> já estão reservados.</p>
+                <div class="time-grid" id="timeGrid"></div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-outline-secondary rounded-pill" onclick="irParaTela(1)"><i class="bi bi-arrow-left me-1"></i> Voltar</button>
+                <button class="btn btn-rosa" onclick="irParaTela(3)" id="btnProximoHorario" disabled>Próximo <i class="bi bi-arrow-right ms-1"></i></button>
+            </div>
+        </div>
+
+        <!-- TELA 3: CONFIRMAÇÃO -->
+        <div class="screen" id="screen3">
+            <div class="text-center mb-4">
+                <h5 class="fw-bold" style="color:var(--rosa);">Confirme seu Agendamento</h5>
+                <p class="text-muted" style="font-size:14px;">Revise as informações antes de confirmar.</p>
+            </div>
+
+            <div class="confirm-box">
+                <div class="confirm-row">
+                    <span class="confirm-label"><i class="bi bi-person me-2"></i>Nome</span>
+                    <span class="confirm-value" id="conf-nome">—</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label"><i class="bi bi-envelope me-2"></i>E-mail</span>
+                    <span class="confirm-value" id="conf-email">—</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label"><i class="bi bi-phone me-2"></i>Telefone</span>
+                    <span class="confirm-value" id="conf-telefone">—</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label"><i class="bi bi-calendar3 me-2"></i>Data</span>
+                    <span class="confirm-value" id="conf-data">—</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label"><i class="bi bi-clock me-2"></i>Horário</span>
+                    <span class="confirm-value" id="conf-horario">—</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label"><i class="bi bi-heart me-2"></i>Motivo</span>
+                    <span class="confirm-value" id="conf-motivo">—</span>
+                </div>
+                <div class="confirm-row" id="conf-row-pet">
+                    <span class="confirm-label"><i class="bi bi-star me-2"></i>Pet de interesse</span>
+                    <span class="confirm-value" id="conf-pet">—</span>
+                </div>
+            </div>
+
+            <div class="alert" style="background:#fff9e6;border:1.5px solid var(--amarelo);border-radius:12px;color:#7a5f00;font-size:13px;">
+                <i class="bi bi-info-circle me-2"></i>Você receberá a confirmação no e-mail informado. Nossa equipe analisará o agendamento em até 24h.
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+                <button class="btn btn-outline-secondary rounded-pill" onclick="irParaTela(2)"><i class="bi bi-arrow-left me-1"></i> Voltar</button>
+                <button class="btn btn-rosa" onclick="confirmarAgendamento()"><i class="bi bi-check-circle me-1"></i> Confirmar Visita</button>
+            </div>
+        </div>
+
+        <!-- TELA 4: SUCESSO + ESTÁGIOS -->
+        <div class="screen" id="screen4">
+            <div class="text-center">
+                <div class="success-icon">
+                    <i class="bi bi-calendar-check" style="font-size:42px;color:var(--rosa);"></i>
+                </div>
+                <h4 class="fw-bold" style="color:var(--rosa);">Solicitação Enviada!</h4>
+                <p class="text-muted">Acompanhe abaixo o status do seu agendamento.</p>
+
+                <div style="background:var(--cinza-fundo);border-radius:14px;padding:16px 20px;display:inline-block;margin:10px auto;">
+                    <strong style="font-size:22px;color:var(--rosa);" id="num-protocolo">#AGD-0000</strong>
+                    <div style="font-size:13px;color:#888;">Número de Protocolo</div>
+                </div>
+            </div>
+
+            <div class="status-stages" id="stagesContainer">
+                <div class="stage-item done" id="stage-enviado">
+                    <div class="stage-circle"><i class="bi bi-send-check"></i></div>
+                    <div class="stage-text">
+                        <strong>Solicitação Enviada</strong>
+                        <small>Recebemos sua solicitação com sucesso.</small>
+                    </div>
+                </div>
+                <div class="stage-item current" id="stage-analise">
+                    <div class="stage-circle"><i class="bi bi-search"></i></div>
+                    <div class="stage-text">
+                        <strong>Em Análise</strong>
+                        <small>Nossa equipe está verificando disponibilidade...</small>
+                    </div>
+                </div>
+                <div class="stage-item" id="stage-confirmado">
+                    <div class="stage-circle"><i class="bi bi-calendar-check"></i></div>
+                    <div class="stage-text">
+                        <strong>Agendamento Confirmado</strong>
+                        <small>Você receberá a confirmação por e-mail.</small>
+                    </div>
+                </div>
+                <div class="stage-item" id="stage-lembrete">
+                    <div class="stage-circle"><i class="bi bi-bell"></i></div>
+                    <div class="stage-text">
+                        <strong>Lembrete Enviado</strong>
+                        <small>Enviaremos um lembrete 24h antes da visita.</small>
+                    </div>
+                </div>
+                <div class="stage-item" id="stage-visita">
+                    <div class="stage-circle"><i class="bi bi-house-heart"></i></div>
+                    <div class="stage-text">
+                        <strong>Dia da Visita</strong>
+                        <small>Bem-vindo à ONG AdoPet! Nos vemos em breve. 🐾</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
+                <a href="../index.html" class="btn btn-amarelo">Voltar ao Início</a>
+                <a href="./pets.html" class="btn btn-rosa">Ver Pets</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="main-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h4 class="fw-bold" style="color:var(--amarelo);">4PatasFortaleza</h4>
+                <p style="font-size:14px;color:#bbb;margin-top:15px;">Fundação dedicada a garantir que cães e gatos encontrem um lar seguro e cheio de amor.</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-3">Acesso Rápido</h5>
+                <ul class="list-unstyled" style="line-height:2;">
+                    <li><a href="./pets.html" class="footer-link">Encontrar um Pet</a></li>
+                    <li><a href="./sobre.html" class="footer-link">Sobre Nós</a></li>
+                    <li><a href="./doacoes.html" class="footer-link">Doações</a></li>
+                    <li><a href="./agendamento.html" class="footer-link">Agendar Visita</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-3">Redes Sociais</h5>
+                <div class="d-flex gap-3">
+                    <a href="https://www.facebook.com/" target="_blank" class="footer-social"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.instagram.com/" target="_blank" class="footer-social"><i class="bi bi-instagram"></i></a>
+                    <a href="https://web.whatsapp.com/" target="_blank" class="footer-social"><i class="bi bi-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr style="border-color:#444;margin-top:40px;margin-bottom:20px;">
+        <div class="text-center" style="color:#777;font-size:13px;">&copy; 2026 4PatasFortaleza. Todos os direitos reservados.</div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+<script src="../assets/js/auth.js"></script>
+</script>
+<script>
+// MENU
+const btnMenu = document.getElementById('btnMenuToggle');
+const containerBotoes = document.getElementById('botoesOcultos');
+const iconeMenu = document.getElementById('iconeMenu');
+if (btnMenu) {
+    btnMenu.addEventListener('click', function() {
+        containerBotoes.classList.toggle('mostrar');
+        iconeMenu.classList.contains('bi-list')
+            ? iconeMenu.classList.replace('bi-list','bi-x-lg')
+            : iconeMenu.classList.replace('bi-x-lg','bi-list');
+    });
+}
+
+// CPF e Telefone: máscaras simples
+document.getElementById('cpf').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g,'');
+    if (v.length <= 11) {
+        v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    }
+    e.target.value = v;
+});
+document.getElementById('telefone').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g,'');
+    v = v.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
+    e.target.value = v;
+});
+
+// ===== CALENDÁRIO =====
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIAS_SEMANA = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+// Dias ocupados simulados (formato YYYY-MM-DD)
+const DIAS_OCUPADOS = new Set();
+// Horários ocupados por dia (simulados)
+const HORARIOS_OCUPADOS = { 'ter':['10:00','15:00'], 'qua':['09:00','14:00'], 'qui':['11:00'], 'sex':['10:00','13:00','16:00'], 'sab':['09:00','10:00','11:00'] };
+const HORARIOS_DISPONIVEIS = ['09:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00'];
+
+let viewDate = new Date();
+let diaSelecionado = null;
+let horarioSelecionado = null;
+
+function renderCalendario() {
+    const h = document.getElementById('calHeaders');
+    const g = document.getElementById('calGrid');
+    const m = document.getElementById('mesAtual');
+
+    m.textContent = MESES[viewDate.getMonth()] + ' ' + viewDate.getFullYear();
+    h.innerHTML = '';
+    g.innerHTML = '';
+
+    DIAS_SEMANA.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'cal-header';
+        el.textContent = d;
+        h.appendChild(el);
+    });
+
+    const primeiroDia = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+    const ultimoDia = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 0);
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+    // Espaços vazios antes do primeiro dia
+    for (let i = 0; i < primeiroDia.getDay(); i++) {
+        const el = document.createElement('div');
+        el.className = 'cal-day empty';
+        g.appendChild(el);
+    }
+
+    for (let d = 1; d <= ultimoDia.getDate(); d++) {
+        const data = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
+        const dow = data.getDay(); // 0=Dom, 6=Sáb
+        const dataStr = data.toISOString().split('T')[0];
+        const isHoje = data.getTime() === hoje.getTime();
+        const isPassado = data < hoje;
+        const isDomingo = dow === 0;
+        const isOcupado = DIAS_OCUPADOS.has(dataStr);
+        const isSelecionado = diaSelecionado && diaSelecionado.toISOString().split('T')[0] === dataStr;
+
+        const el = document.createElement('div');
+        let classes = 'cal-day';
+        if (isPassado || isDomingo || isOcupado) classes += ' disabled';
+        if (isHoje) classes += ' today';
+        if (isSelecionado) classes += ' selected';
+        el.className = classes;
+        el.textContent = d;
+
+        if (!isPassado && !isDomingo && !isOcupado) {
+            el.addEventListener('click', () => selecionarDia(data));
+        }
+        g.appendChild(el);
+    }
+}
+
+function mudarMes(delta) {
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + delta, 1);
+    diaSelecionado = null;
+    horarioSelecionado = null;
+    document.getElementById('secaoHorarios').style.display = 'none';
+    document.getElementById('btnProximoHorario').disabled = true;
+    renderCalendario();
+}
+
+function selecionarDia(data) {
+    diaSelecionado = data;
+    horarioSelecionado = null;
+    document.getElementById('btnProximoHorario').disabled = true;
+    renderCalendario();
+    renderHorarios(data);
+}
+
+function renderHorarios(data) {
+    const dow = data.getDay(); // 0=dom,1=seg,2=ter,...,6=sab
+    const nomes = ['dom','seg','ter','qua','qui','sex','sab'];
+    const chaveDow = nomes[dow];
+    const ocupados = HORARIOS_OCUPADOS[chaveDow] || [];
+
+    const sec = document.getElementById('secaoHorarios');
+    const grid = document.getElementById('timeGrid');
+    sec.style.display = 'block';
+    grid.innerHTML = '';
+
+    HORARIOS_DISPONIVEIS.forEach(h => {
+        const isOcupado = ocupados.includes(h);
+        const el = document.createElement('div');
+        el.className = 'time-slot' + (isOcupado ? ' occupied' : '');
+        el.innerHTML = isOcupado
+            ? `<i class="bi bi-x-circle text-danger me-1"></i>${h}<br><small>Ocupado</small>`
+            : `<i class="bi bi-clock me-1" style="color:var(--rosa);"></i>${h}`;
+        if (!isOcupado) {
+            el.addEventListener('click', () => selecionarHorario(h, el));
+        }
+        grid.appendChild(el);
+    });
+}
+
+function selecionarHorario(h, el) {
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    horarioSelecionado = h;
+    document.getElementById('btnProximoHorario').disabled = false;
+}
+
+// ===== STEPPER =====
+function irParaTela(n) {
+    if (n === 2) {
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const tel = document.getElementById('telefone').value.trim();
+        if (!nome || !email || !tel) {
+            alert('Por favor, preencha os campos obrigatórios: Nome, E-mail e Telefone.');
+            return;
+        }
+    }
+    if (n === 3) {
+        if (!diaSelecionado || !horarioSelecionado) {
+            alert('Selecione uma data e um horário disponível.');
+            return;
+        }
+        // Preenche tela de confirmação
+        const motivoMap = {
+            '': '—', adocao:'Interesse em adoção', conhecer:'Conhecer os pets',
+            voluntario:'Ser voluntário', doacao:'Entregar doação', outro:'Outro'
+        };
+        document.getElementById('conf-nome').textContent = document.getElementById('nome').value;
+        document.getElementById('conf-email').textContent = document.getElementById('email').value;
+        document.getElementById('conf-telefone').textContent = document.getElementById('telefone').value;
+        document.getElementById('conf-data').textContent = diaSelecionado.toLocaleDateString('pt-BR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+        document.getElementById('conf-horario').textContent = horarioSelecionado;
+        document.getElementById('conf-motivo').textContent = motivoMap[document.getElementById('motivo').value] || '—';
+        const pet = document.getElementById('petInteresse').value.trim();
+        document.getElementById('conf-pet').textContent = pet || '—';
+        document.getElementById('conf-row-pet').style.display = pet ? 'flex' : 'none';
+    }
+
+    // Atualiza stepper
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen' + n).classList.add('active');
+
+    for (let i = 1; i <= 4; i++) {
+        const step = document.getElementById('step' + i);
+        step.classList.remove('active','done');
+        if (i < n) step.classList.add('done');
+        else if (i === n) step.classList.add('active');
+    }
+    for (let i = 1; i <= 3; i++) {
+        const line = document.getElementById('line' + i);
+        if (line) line.classList.toggle('done', i < n);
+    }
+
+    window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+function confirmarAgendamento() {
+    // Gera protocolo
+    const protocolo = '#AGD-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('num-protocolo').textContent = protocolo;
+    irParaTela(4);
+
+    // Simula progressão dos estágios
+    setTimeout(() => ativarStage('stage-analise', false), 100);
+    setTimeout(() => {
+        ativarStage('stage-analise', true);
+        ativarStage('stage-confirmado', false);
+    }, 2200);
+    setTimeout(() => {
+        ativarStage('stage-confirmado', true);
+        ativarStage('stage-lembrete', false);
+    }, 4500);
+    setTimeout(() => {
+        ativarStage('stage-lembrete', true);
+        ativarStage('stage-visita', false);
+    }, 6500);
+}
+
+function ativarStage(id, finalizar) {
+    const el = document.getElementById(id);
+    if (finalizar) {
+        el.classList.remove('current');
+        el.classList.add('done');
+    } else {
+        el.classList.add('current');
+    }
+}
+
+// Init
+renderCalendario();
+Auth.renderHeaderUser();
+</script>
+</body>
+</html>
