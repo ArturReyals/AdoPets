@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdoPet – Adoção de Pets</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div style="width: 100%; height: 7px; background: #A61C5D;"></div>
+
+    <header style="background-color: white; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div class="container d-flex justify-content-between align-items-center">
+
+            <img src="assets/images/aaa.png" alt="Logo AdoPet" style="height: 60px; object-fit: contain;">
+
+            <div class="menu-wrapper" style="display: flex; gap: 10px; align-items: center;">
+                <div class="hidden-buttons-container" id="botoesOcultos">
+                    <a href="./index.html" class="btn btn-menu-oculto">Início</a>
+                    <a href="./pages/pets.html" class="btn btn-menu-oculto">Encontrar um Pet</a>
+                    <a href="./pages/sobre.html" class="btn btn-menu-oculto">Sobre Nós</a>
+                    <a href="./pages/doacoes.html" class="btn btn-menu-oculto">Doações</a>
+                    <a href="./pages/agendamento.html" class="btn btn-menu-oculto">Agendar Visita</a>
+                </div>
+                
+                <div class="btn-login-header"></div>
+
+                <button class="btn" style="background-color: #A61C5D; color: white; border-radius: 36px; display: flex; align-items: center; justify-content: center;" id="btnMenuToggle">
+                    <i class="bi bi-list fs-4" id="iconeMenu"></i>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <section style="background-color: #ffd801; padding: 80px 0 100px 0; text-align: center;">
+        <div class="container">
+            <h1 style="color: #A61C5D; font-weight: 800; font-size: 3rem;">Encontre o Seu Melhor Amigo Hoje!</h1>
+            <p style="color: #A61C5D; font-size: 1.5rem; margin-top: 15px;">
+                Adoção de cães e gatos em toda Fortaleza e cidades metropolitanas. Dê um lar a quem precisa de amor.
+            </p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="search-bar-floating d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div class="filter-block flex-grow-1" onclick="toggleDropdown('tipo')">
+                <strong>Tipo de Pet</strong>
+                <span class="filter-value" id="valor-tipo">Cachorro/Gato</span>
+                <div class="filter-dropdown" id="dropdown-tipo">
+                    <div class="filter-option" data-valor="cachorro" onclick="event.stopPropagation(); selecionarOpcao('tipo', 'cachorro')">Cachorro</div>
+                    <div class="filter-option" data-valor="gato"     onclick="event.stopPropagation(); selecionarOpcao('tipo', 'gato')">Gato</div>
+                </div>
+            </div>
+
+            <div class="filter-block flex-grow-1 border-start ps-3" onclick="toggleDropdown('idade')">
+                <strong>Idade</strong>
+                <span class="filter-value" id="valor-idade">Filhote/Adulto</span>
+                <div class="filter-dropdown" id="dropdown-idade">
+                    <div class="filter-option" data-valor="filhote" onclick="event.stopPropagation(); selecionarOpcao('idade', 'filhote')">Filhote</div>
+                    <div class="filter-option" data-valor="adulto"  onclick="event.stopPropagation(); selecionarOpcao('idade', 'adulto')">Adulto</div>
+                </div>
+            </div>
+
+            <div class="filter-block flex-grow-1 border-start ps-3" onclick="toggleDropdown('porte')">
+                <strong>Porte</strong>
+                <span class="filter-value" id="valor-porte">Pequeno/Médio/Grande</span>
+                <div class="filter-dropdown" id="dropdown-porte">
+                    <div class="filter-option" data-valor="pequeno" onclick="event.stopPropagation(); selecionarOpcao('porte', 'pequeno')">Pequeno</div>
+                    <div class="filter-option" data-valor="medio"   onclick="event.stopPropagation(); selecionarOpcao('porte', 'medio')">Médio</div>
+                    <div class="filter-option" data-valor="grande"  onclick="event.stopPropagation(); selecionarOpcao('porte', 'grande')">Grande</div>
+                </div>
+            </div>
+
+            <div class="filter-block flex-grow-1 border-start ps-3" onclick="toggleDropdown('localizacao')">
+                <strong>Localização</strong>
+                <span class="filter-value" id="valor-localizacao">Cidade/Estado</span>
+                <div class="filter-dropdown" id="dropdown-localizacao">
+                    <div class="filter-option" data-valor="fortaleza" onclick="event.stopPropagation(); selecionarOpcao('localizacao', 'fortaleza')">Fortaleza</div>
+                    <div class="filter-option" data-valor="caucaia"   onclick="event.stopPropagation(); selecionarOpcao('localizacao', 'caucaia')">Caucaia</div>
+                    <div class="filter-option" data-valor="eusebio"   onclick="event.stopPropagation(); selecionarOpcao('localizacao', 'eusebio')">Eusébio</div>
+                    <div class="filter-option" data-valor="maracanau" onclick="event.stopPropagation(); selecionarOpcao('localizacao', 'maracanau')">Maracanaú</div>
+                </div>
+            </div>
+
+            <div>
+                <button class="btn px-4 py-2" onclick="buscarPets()"
+                    style="background-color: #A61C5D; color: white; border-radius: 30px; font-weight: bold;">
+                    Buscar Pets
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <section class="container" style="margin-top: 60px; margin-bottom: 80px;">
+        <h3 style="color: #333; font-weight: bold; margin-bottom: 30px;">Pets em Destaque</h3>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div class="card pet-card">
+                    <img src="assets/images/cachorro1.jpg" class="card-img-top" alt="Cachorro Bolinha">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Bolinha</h5>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-tag"></i> Cão • 3 anos</p>
+                        <p class="card-text text-muted mb-3"><i class="bi bi-geo-alt"></i> Fortaleza</p>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-secondary rounded-pill px-3" style="font-size: 14px;">Conhecer</button>
+                            <button class="btn rounded-pill px-4" style="background-color: #ffd801; color: #A61C5D; font-weight: bold; font-size: 14px;">Adotar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card pet-card">
+                    <img src="assets/images/gato1.jpeg" class="card-img-top" alt="Gato Mia">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Mia</h5>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-tag"></i> Gato • 1 ano</p>
+                        <p class="card-text text-muted mb-3"><i class="bi bi-geo-alt"></i> Fortaleza</p>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-secondary rounded-pill px-3" style="font-size: 14px;">Conhecer</button>
+                            <button class="btn rounded-pill px-4" style="background-color: #ffd801; color: #A61C5D; font-weight: bold; font-size: 14px;">Adotar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card pet-card">
+                    <img src="assets/images/cachorro2.jpg" class="card-img-top" alt="Cachorro Thor">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Thor</h5>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-tag"></i> Cão • 4 meses</p>
+                        <p class="card-text text-muted mb-3"><i class="bi bi-geo-alt"></i> Caucaia</p>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-secondary rounded-pill px-3" style="font-size: 14px;">Conhecer</button>
+                            <button class="btn rounded-pill px-4" style="background-color: #ffd801; color: #A61C5D; font-weight: bold; font-size: 14px;">Adotar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card pet-card">
+                    <img src="assets/images/gato2.jpg" class="card-img-top" alt="Gato Luna">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Luna</h5>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-tag"></i> Gato • 2 meses</p>
+                        <p class="card-text text-muted mb-3"><i class="bi bi-geo-alt"></i> Eusébio</p>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-secondary rounded-pill px-3" style="font-size: 14px;">Conhecer</button>
+                            <button class="btn rounded-pill px-4" style="background-color: #ffd801; color: #A61C5D; font-weight: bold; font-size: 14px;">Adotar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="container" style="margin-top: 80px; margin-bottom: 80px; text-align: center;">
+        <h3 style="color: #333; font-weight: bold; margin-bottom: 50px;">Como Funciona a Adoção</h3>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div style="width:80px;height:80px;background-color:#ffd801;border-radius:50%;display:flex;justify-content:center;align-items:center;margin:0 auto 20px auto;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                    <i class="bi bi-search" style="font-size:35px;color:#A61C5D;"></i>
+                </div>
+                <h5 class="fw-bold" style="color:#A61C5D;">1. Explore</h5>
+                <p class="text-muted" style="font-size:14px;">Descubra os pets que estão precisando de um lar.</p>
+            </div>
+
+            <div class="col-md-3">
+                <div style="width:80px;height:80px;background-color:#ffd801;border-radius:50%;display:flex;justify-content:center;align-items:center;margin:0 auto 20px auto;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                    <i class="bi bi-eye" style="font-size:35px;color:#A61C5D;"></i>
+                </div>
+                <h5 class="fw-bold" style="color:#A61C5D;">2. Conheça</h5>
+                <p class="text-muted" style="font-size:14px;">Agende uma visita para interagir com o seu possível novo amigo.</p>
+            </div>
+
+            <div class="col-md-3">
+                <div style="width:80px;height:80px;background-color:#ffd801;border-radius:50%;display:flex;justify-content:center;align-items:center;margin:0 auto 20px auto;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                    <i class="bi bi-clipboard2-check" style="font-size:35px;color:#A61C5D;"></i>
+                </div>
+                <h5 class="fw-bold" style="color:#A61C5D;">3. Solicite</h5>
+                <p class="text-muted" style="font-size:14px;">Preencha o formulário e passe pela nossa entrevista de adoção.</p>
+            </div>
+
+            <div class="col-md-3">
+                <div style="width:80px;height:80px;background-color:#ffd801;border-radius:50%;display:flex;justify-content:center;align-items:center;margin:0 auto 20px auto;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                    <i class="bi bi-house-heart" style="font-size:35px;color:#A61C5D;"></i>
+                </div>
+                <h5 class="fw-bold" style="color:#A61C5D;">4. Abrace</h5>
+                <p class="text-muted" style="font-size:14px;">Leve seu novo melhor amigo para casa e dê muito amor!</p>
+            </div>
+
+        </div>
+    </section>
+
+    <footer style="background-color: #212529; color: white; padding: 60px 0 20px 0;">
+        <div class="container">
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <h4 class="fw-bold" style="color: #ffd801;">4PatasFortaleza</h4>
+                    <p style="font-size:14px;color:#bbb;margin-top:15px;">
+                        Fundação dedicada a garantir que cães e gatos encontrem um lar seguro, carinhoso e cheio de amor. Adote e transforme uma vida!
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Acesso Rápido</h5>
+                    <ul class="list-unstyled" style="line-height: 2;">
+                        <li><a href="pages/pets.html"   class="footer-link">Encontrar um Pet</a></li>
+                        <li><a href="#como-funciona"    class="footer-link">Como Funciona</a></li>
+                        <li><a href="pages/sobre.html"  class="footer-link">Sobre Nós</a></li>
+                        <li><a href="pages/doacoes.html" class="footer-link">Doações</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Redes Sociais</h5>
+                    <div class="d-flex gap-3">
+                        <a href="https://www.facebook.com/" target="_blank" class="footer-social"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/" target="_blank" class="footer-social"><i class="bi bi-instagram"></i></a>
+                        <a href="https://web.whatsapp.com/" target="_blank" class="footer-social"><i class="bi bi-whatsapp"></i></a>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr style="border-color: #444; margin-top: 40px; margin-bottom: 20px;">
+
+            <div class="text-center" style="color: #777; font-size: 13px;">
+                &copy; 2026 4PatasFortaleza. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>Auth.renderHeaderUser();</script>
+
+</body>
+</html>

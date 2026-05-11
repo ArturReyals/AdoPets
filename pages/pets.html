@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdoPet – Encontrar um Pet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        :root { --rosa:#A61C5D; --amarelo:#ffd801; --cinza-fundo:#f8f9fa; }
+        .hero-pets { background-color:var(--amarelo); padding:70px 0 90px; text-align:center; }
+        .hero-pets h1 { color:var(--rosa); font-weight:800; font-size:2.8rem; }
+        .hero-pets p  { color:var(--rosa); font-size:1.2rem; margin-top:12px; }
+        .pet-card { border:none; border-radius:18px; box-shadow:0 4px 20px rgba(0,0,0,0.07); transition:transform 0.3s, box-shadow 0.3s; overflow:hidden; }
+        .pet-card:hover { transform:translateY(-6px); box-shadow:0 12px 35px rgba(166,28,93,0.13); }
+        .pet-card img { height:210px; object-fit:cover; width:100%; }
+        .pet-badge { font-size:11px; font-weight:700; text-transform:uppercase; border-radius:20px; padding:4px 10px; }
+        .badge-disponivel { background:#e6ffee; color:#008833; }
+        .badge-reservado  { background:#fff5e6; color:#cc7700; }
+        .badge-adotado    { background:#e6f0ff; color:#004499; }
+        .status-dot { width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:5px; }
+        .dot-disponivel { background:#22c55e; }
+        .dot-reservado  { background:#f59e0b; }
+        .dot-adotado    { background:#3b82f6; }
+        .modal-pet-img { width:100%; height:270px; object-fit:cover; border-radius:14px; }
+        .info-pill { background:var(--cinza-fundo); border-radius:20px; padding:8px 14px; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:6px; color:#555; }
+        .screen { display:none; }
+        .screen.active { display:block; animation:fadeIn 0.35s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        .btn-rosa { background:var(--rosa); color:white; border-radius:30px; padding:10px 28px; font-weight:700; border:none; transition:all 0.3s; }
+        .btn-rosa:hover { background:#8e1750; color:white; transform:translateY(-2px); }
+        .btn-amarelo { background:var(--amarelo); color:var(--rosa); border-radius:30px; padding:10px 28px; font-weight:700; border:none; transition:all 0.3s; }
+        .btn-amarelo:hover { background:#e6c200; color:var(--rosa); }
+        .main-footer { background:#212529; color:white; padding:60px 0 20px; }
+        .footer-link { color:#bbb; text-decoration:none; transition:color 0.3s; }
+        .footer-link:hover { color:var(--amarelo); }
+        .footer-social { color:white; font-size:24px; transition:color 0.3s; }
+        .footer-social:hover { color:var(--amarelo); }
+        /* Login gate */
+        .login-gate { background:white; border-radius:20px; padding:32px; text-align:center; border:2px dashed #ddd; margin:20px 0; }
+    </style>
+</head>
+<body>
+<div style="width:100%;height:7px;background:var(--rosa);"></div>
+<header style="background-color:white;padding:15px 0;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="../index.html"><img src="../assets/images/aaa.png" alt="Logo AdoPet" style="height:60px;object-fit:contain;"></a>
+        <div class="menu-wrapper" style="display:flex;align-items:center;gap:10px;">
+            <div class="hidden-buttons-container" id="botoesOcultos">
+                <a href="../index.html" class="btn btn-menu-oculto">Início</a>
+                <a href="./pets.html" class="btn btn-menu-oculto">Encontrar um Pet</a>
+                <a href="./sobre.html" class="btn btn-menu-oculto">Sobre Nós</a>
+                <a href="./doacoes.html" class="btn btn-menu-oculto">Doações</a>
+                <a href="./agendamento.html" class="btn btn-menu-oculto">Agendar Visita</a>
+            </div>
+            <div class="btn-login-header"></div>
+            <button class="btn" style="background:var(--rosa);color:white;border-radius:36px;" id="btnMenuToggle">
+                <i class="bi bi-list fs-4" id="iconeMenu"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<section class="hero-pets">
+    <div class="container">
+        <h1><i class="bi bi-search-heart me-2"></i>Encontre seu Pet</h1>
+        <p>Conheça os animais disponíveis para adoção. Cada um espera por um lar cheio de amor.</p>
+    </div>
+</section>
+
+<!-- FILTROS -->
+<div class="container">
+    <div class="search-bar-floating d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="filter-block flex-grow-1" onclick="toggleDropdown('tipo')">
+            <strong>Tipo de Pet</strong>
+            <span class="filter-value" id="valor-tipo">Cachorro/Gato</span>
+            <div class="filter-dropdown" id="dropdown-tipo">
+                <div class="filter-option" data-valor="cachorro" onclick="event.stopPropagation();selecionarOpcao('tipo','cachorro')">Cachorro</div>
+                <div class="filter-option" data-valor="gato"     onclick="event.stopPropagation();selecionarOpcao('tipo','gato')">Gato</div>
+            </div>
+        </div>
+        <div class="filter-block flex-grow-1 border-start ps-3" onclick="toggleDropdown('idade')">
+            <strong>Idade</strong>
+            <span class="filter-value" id="valor-idade">Filhote/Adulto</span>
+            <div class="filter-dropdown" id="dropdown-idade">
+                <div class="filter-option" data-valor="filhote" onclick="event.stopPropagation();selecionarOpcao('idade','filhote')">Filhote</div>
+                <div class="filter-option" data-valor="adulto"  onclick="event.stopPropagation();selecionarOpcao('idade','adulto')">Adulto</div>
+            </div>
+        </div>
+        <div class="filter-block flex-grow-1 border-start ps-3" onclick="toggleDropdown('porte')">
+            <strong>Porte</strong>
+            <span class="filter-value" id="valor-porte">Pequeno/Médio/Grande</span>
+            <div class="filter-dropdown" id="dropdown-porte">
+                <div class="filter-option" data-valor="pequeno" onclick="event.stopPropagation();selecionarOpcao('porte','pequeno')">Pequeno</div>
+                <div class="filter-option" data-valor="medio"   onclick="event.stopPropagation();selecionarOpcao('porte','medio')">Médio</div>
+                <div class="filter-option" data-valor="grande"  onclick="event.stopPropagation();selecionarOpcao('porte','grande')">Grande</div>
+            </div>
+        </div>
+        <div class="filter-block flex-grow-1 border-start ps-3" onclick="toggleDropdown('status')">
+            <strong>Status</strong>
+            <span class="filter-value" id="valor-status">Todos</span>
+            <div class="filter-dropdown" id="dropdown-status">
+                <div class="filter-option" data-valor="disponivel" onclick="event.stopPropagation();selecionarOpcao('status','disponivel')">Disponível</div>
+                <div class="filter-option" data-valor="reservado"  onclick="event.stopPropagation();selecionarOpcao('status','reservado')">Reservado</div>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-rosa" onclick="aplicarFiltros()">Buscar Pets</button>
+        </div>
+    </div>
+</div>
+
+<!-- GRID -->
+<section class="container" style="margin-top:50px;margin-bottom:100px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h4 class="fw-bold mb-0" style="color:#333;">Pets Disponíveis</h4>
+        <span class="text-muted" style="font-size:14px;" id="contadorPets"></span>
+    </div>
+    <div class="row g-4" id="petGrid"></div>
+    <div id="semResultados" style="display:none;" class="text-center py-5">
+        <i class="bi bi-emoji-frown" style="font-size:56px;color:#ddd;"></i>
+        <h5 class="mt-3 text-muted">Nenhum pet encontrado com esses filtros.</h5>
+        <button class="btn btn-amarelo mt-3" onclick="limparFiltros()">Limpar Filtros</button>
+    </div>
+</section>
+
+<!-- MODAL DETALHE -->
+<div class="modal fade" id="modalPet" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius:20px;border:none;overflow:hidden;">
+            <div class="modal-header" style="background:var(--amarelo);border:none;padding:20px 28px;">
+                <h5 class="modal-title fw-bold" id="modalNome" style="color:var(--rosa);font-size:1.5rem;"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <!-- Screen 1: Info -->
+                <div class="screen active p-4" id="modal-screen1">
+                    <div class="row g-4">
+                        <div class="col-md-5">
+                            <img id="modalImg" src="" alt="" class="modal-pet-img">
+                            <div class="text-center mt-3" id="modalStatusBadge"></div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="d-flex flex-wrap gap-2 mb-3" id="modalBadges"></div>
+                            <p id="modalDescricao" class="text-muted" style="font-size:14px;line-height:1.7;"></p>
+                            <div class="row g-2 mt-2">
+                                <div class="col-6"><div class="info-pill"><i class="bi bi-geo-alt" style="color:var(--rosa);"></i><span id="modalLocal"></span></div></div>
+                                <div class="col-6"><div class="info-pill"><i class="bi bi-calendar3" style="color:var(--rosa);"></i><span id="modalIdade"></span></div></div>
+                                <div class="col-6"><div class="info-pill"><i class="bi bi-rulers" style="color:var(--rosa);"></i><span id="modalPorte"></span></div></div>
+                                <div class="col-6"><div class="info-pill"><i class="bi bi-gender-ambiguous" style="color:var(--rosa);"></i><span id="modalSexo"></span></div></div>
+                            </div>
+                            <div class="d-flex gap-3 mt-3 flex-wrap">
+                                <div id="modalVacinas"></div>
+                                <div id="modalCastrado"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 justify-content-end mt-4 flex-wrap">
+                        <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Fechar</button>
+                        <button class="btn btn-rosa" id="btnAdotarModal" onclick="irParaAdocao()">
+                            <i class="bi bi-heart me-2"></i>Quero Adotar
+                        </button>
+                    </div>
+                </div>
+                <!-- Screen 2: Adoção (requer login) -->
+                <div class="screen p-4" id="modal-screen2">
+                    <!-- sem login -->
+                    <div id="adocao-sem-login" style="display:none;">
+                        <div class="login-gate">
+                            <i class="bi bi-lock" style="font-size:40px;color:#ccc;"></i>
+                            <h5 class="mt-3" style="color:var(--rosa);">Login necessário</h5>
+                            <p class="text-muted" style="font-size:14px;">Para solicitar a adoção, você precisa ter uma conta no AdoPet.</p>
+                            <div class="d-flex justify-content-center gap-3 mt-3">
+                                <a href="./login.html" class="btn btn-rosa">Entrar</a>
+                                <a href="./login.html" class="btn btn-amarelo" onclick="sessionStorage.setItem('goToCad','1')">Criar Conta</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- com login -->
+                    <div id="adocao-com-login" style="display:none;">
+                        <h6 class="fw-bold mb-1" style="color:var(--rosa);">Solicitação de Adoção</h6>
+                        <p class="text-muted mb-3" style="font-size:13px;">Nossa equipe entrará em contato em até 48h úteis.</p>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label fw-semibold" style="font-size:13px;">Nome Completo *</label><input type="text" class="form-control" id="adocNome" placeholder="Seu nome" style="border-radius:12px;font-size:14px;"></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold" style="font-size:13px;">E-mail *</label><input type="email" class="form-control" id="adocEmail" placeholder="seu@email.com" style="border-radius:12px;font-size:14px;"></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold" style="font-size:13px;">Telefone *</label><input type="text" class="form-control" id="adocTel" placeholder="(85) 9 0000-0000" style="border-radius:12px;font-size:14px;"></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold" style="font-size:13px;">Cidade *</label><input type="text" class="form-control" id="adocCidade" placeholder="Fortaleza" style="border-radius:12px;font-size:14px;"></div>
+                            <div class="col-12"><label class="form-label fw-semibold" style="font-size:13px;">Tipo de moradia *</label><select class="form-select" id="adocMoradia" style="border-radius:12px;font-size:14px;"><option value="">Selecione...</option><option>Casa com quintal</option><option>Casa sem quintal</option><option>Apartamento</option><option>Chácara / Sítio</option></select></div>
+                            <div class="col-12"><label class="form-label fw-semibold" style="font-size:13px;">Por que você quer adotar?</label><textarea class="form-control" id="adocMotivo" rows="3" style="border-radius:12px;font-size:14px;" placeholder="Conte um pouco sobre você..."></textarea></div>
+                            <div class="col-12"><div class="form-check"><input type="checkbox" class="form-check-input" id="adocTermo"><label class="form-check-label" for="adocTermo" style="font-size:13px;">Li e aceito os termos de responsabilidade de adoção.</label></div></div>
+                        </div>
+                        <div class="d-flex gap-3 justify-content-between mt-4 flex-wrap">
+                            <button class="btn btn-outline-secondary rounded-pill" onclick="resetModalScreens(1)">← Voltar</button>
+                            <button class="btn btn-rosa" onclick="enviarAdocao()"><i class="bi bi-send me-2"></i>Enviar Solicitação</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Screen 3: Sucesso -->
+                <div class="screen p-4 text-center" id="modal-screen3">
+                    <div style="width:80px;height:80px;background:var(--amarelo);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                        <i class="bi bi-heart-fill" style="font-size:38px;color:var(--rosa);"></i>
+                    </div>
+                    <h5 class="fw-bold" style="color:var(--rosa);">Solicitação Enviada!</h5>
+                    <p class="text-muted" id="adoc-sucesso-msg"></p>
+                    <div style="background:var(--cinza-fundo);border-radius:12px;padding:14px 20px;margin:16px 0;">
+                        <strong style="color:var(--rosa);font-size:18px;" id="adoc-protocolo"></strong>
+                        <div style="color:#888;font-size:12px;">Protocolo de Adoção</div>
+                    </div>
+                    <p style="font-size:13px;color:#888;">Nossa equipe analisará sua solicitação e entrará em contato em breve.</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap mt-3">
+                        <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Fechar</button>
+                        <a href="./agendamento.html" class="btn btn-rosa">Agendar Visita</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="main-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4"><h4 class="fw-bold" style="color:var(--amarelo);">4PatasFortaleza</h4><p style="font-size:14px;color:#bbb;margin-top:15px;">Fundação dedicada a garantir que cães e gatos encontrem um lar seguro e cheio de amor.</p></div>
+            <div class="col-md-4"><h5 class="fw-bold mb-3">Acesso Rápido</h5><ul class="list-unstyled" style="line-height:2;"><li><a href="./pets.html" class="footer-link">Encontrar um Pet</a></li><li><a href="./sobre.html" class="footer-link">Sobre Nós</a></li><li><a href="./doacoes.html" class="footer-link">Doações</a></li><li><a href="./agendamento.html" class="footer-link">Agendar Visita</a></li></ul></div>
+            <div class="col-md-4"><h5 class="fw-bold mb-3">Redes Sociais</h5><div class="d-flex gap-3"><a href="https://www.facebook.com/" target="_blank" class="footer-social"><i class="bi bi-facebook"></i></a><a href="https://www.instagram.com/" target="_blank" class="footer-social"><i class="bi bi-instagram"></i></a><a href="https://web.whatsapp.com/" target="_blank" class="footer-social"><i class="bi bi-whatsapp"></i></a></div></div>
+        </div>
+        <hr style="border-color:#444;margin-top:40px;margin-bottom:20px;">
+        <div class="text-center" style="color:#777;font-size:13px;">&copy; 2026 4PatasFortaleza. Todos os direitos reservados.</div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script>
+Auth.renderHeaderUser();
+
+document.getElementById('btnMenuToggle').addEventListener('click', function() {
+    document.getElementById('botoesOcultos').classList.toggle('mostrar');
+    document.getElementById('iconeMenu').className = document.getElementById('botoesOcultos').classList.contains('mostrar') ? 'bi bi-x-lg fs-4' : 'bi bi-list fs-4';
+});
+
+// FILTROS
+const filtros = { tipo:null, idade:null, porte:null, status:null };
+const placeholders = { tipo:'Cachorro/Gato', idade:'Filhote/Adulto', porte:'Pequeno/Médio/Grande', status:'Todos' };
+
+function toggleDropdown(chave) {
+    const dd = document.getElementById('dropdown-'+chave);
+    const aberto = dd.classList.contains('aberto');
+    document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('aberto'));
+    if (!aberto) dd.classList.add('aberto');
+}
+function selecionarOpcao(chave, valor) {
+    filtros[chave] = filtros[chave] === valor ? null : valor;
+    const span = document.getElementById('valor-'+chave);
+    if (filtros[chave]) {
+        const el = document.querySelector(`#dropdown-${chave} [data-valor="${filtros[chave]}"]`);
+        span.textContent = el ? el.textContent.trim() : placeholders[chave];
+        span.style.color = 'var(--rosa)'; span.style.fontWeight = '600';
+    } else {
+        span.textContent = placeholders[chave]; span.style.color = ''; span.style.fontWeight = '';
+    }
+    document.querySelectorAll(`#dropdown-${chave} .filter-option`).forEach(el => {
+        el.classList.toggle('selecionado', el.dataset.valor === filtros[chave]);
+    });
+    document.getElementById('dropdown-'+chave).classList.remove('aberto');
+}
+document.addEventListener('click', e => {
+    if (!e.target.closest('.filter-block')) document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('aberto'));
+});
+
+function idadeParaCategoria(idStr) {
+    const s = idStr.toLowerCase();
+    if (s.includes('mes') || s.includes('mês') || s.includes('semana')) return 'filhote';
+    const m = s.match(/(\d+)\s*ano/);
+    if (m && parseInt(m[1]) <= 1) return 'filhote';
+    return 'adulto';
+}
+
+function aplicarFiltros() {
+    let res = Auth.getPets(); // sempre busca dados atualizados
+    if (filtros.tipo)   res = res.filter(p => p.tipo === filtros.tipo);
+    if (filtros.idade)  res = res.filter(p => idadeParaCategoria(p.idade) === filtros.idade);
+    if (filtros.porte)  res = res.filter(p => p.porte === filtros.porte);
+    if (filtros.status) res = res.filter(p => p.status === filtros.status);
+    renderGrid(res);
+}
+
+function limparFiltros() {
+    Object.keys(filtros).forEach(k => {
+        filtros[k] = null;
+        const span = document.getElementById('valor-'+k);
+        if (span) { span.textContent = placeholders[k]; span.style.color=''; span.style.fontWeight=''; }
+        document.querySelectorAll(`#dropdown-${k} .filter-option`).forEach(el => el.classList.remove('selecionado'));
+    });
+    renderGrid(Auth.getPets());
+}
+
+// RENDER GRID
+function renderGrid(pets) {
+    const grid = document.getElementById('petGrid');
+    const sem = document.getElementById('semResultados');
+    const contador = document.getElementById('contadorPets');
+    grid.innerHTML = '';
+    if (pets.length === 0) { sem.style.display='block'; contador.textContent=''; return; }
+    sem.style.display = 'none';
+    contador.textContent = `${pets.length} pet(s) encontrado(s)`;
+    pets.forEach(pet => {
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-sm-6';
+        const emoji = pet.tipo === 'cachorro' ? '' : '';
+        const idCat = idadeParaCategoria(pet.idade);
+        const isDisp = pet.status === 'disponivel';
+        col.innerHTML = `
+        <div class="card pet-card h-100" style="cursor:pointer;" onclick="abrirModal(${pet.id})">
+            <img src="${pet.foto}" class="card-img-top" alt="${pet.nome}" onerror="this.src='../assets/images/cachorro1.jpg'">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-bold mb-0">${pet.nome}</h5>
+                    <span class="pet-badge badge-${pet.status}">
+                        <span class="status-dot dot-${pet.status}"></span>${pet.status}
+                    </span>
+                </div>
+                <p class="card-text text-muted mb-1" style="font-size:13px;">${emoji} ${pet.tipo.charAt(0).toUpperCase()+pet.tipo.slice(1)} · ${pet.idade} · ${idCat.charAt(0).toUpperCase()+idCat.slice(1)}</p>
+                <p class="card-text text-muted mb-3" style="font-size:13px;"><i class="bi bi-geo-alt"></i> ${pet.localizacao}</p>
+                <div class="d-flex gap-2 flex-wrap mb-3">
+                    ${pet.vacinado ? '<span class="pet-badge" style="background:#e6ffee;color:#008833;">💉 Vacinado</span>' : ''}
+                    ${pet.castrado ? '<span class="pet-badge" style="background:#e6f0ff;color:#004499;">✂️ Castrado</span>' : ''}
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-outline-secondary rounded-pill px-3" style="font-size:13px;" onclick="event.stopPropagation();abrirModal(${pet.id})">Conhecer</button>
+                    <button class="btn rounded-pill px-3"
+                        style="background:var(--amarelo);color:var(--rosa);font-weight:700;font-size:13px;${!isDisp?'opacity:0.6;cursor:not-allowed;':''}"
+                        onclick="event.stopPropagation();${isDisp ? `abrirModalAdocao(${pet.id})` : `alert('Este pet já está ${pet.status}.')`}">
+                        ${isDisp ? 'Adotar' : pet.status.charAt(0).toUpperCase()+pet.status.slice(1)}
+                    </button>
+                </div>
+            </div>
+        </div>`;
+        grid.appendChild(col);
+    });
+}
+
+// MODAL
+let petAtual = null;
+
+function abrirModal(id) {
+    petAtual = Auth.getPets().find(p => Number(p.id) === Number(id));
+    if (!petAtual) return;
+    resetModalScreens(1);
+    preencherModal(petAtual);
+    new bootstrap.Modal(document.getElementById('modalPet')).show();
+}
+
+function abrirModalAdocao(id) {
+    petAtual = Auth.getPets().find(p => Number(p.id) === Number(id));
+    if (!petAtual) return;
+    document.getElementById('modalNome').textContent = petAtual.nome;
+    resetModalScreens(2);
+    new bootstrap.Modal(document.getElementById('modalPet')).show();
+}
+
+function preencherModal(pet) {
+    const emoji = pet.tipo === 'cachorro' ? '' : '';
+    const idCat = idadeParaCategoria(pet.idade);
+    document.getElementById('modalNome').textContent = pet.nome;
+    document.getElementById('modalImg').src = pet.foto;
+    document.getElementById('modalImg').onerror = function() { this.src='../assets/images/cachorro1.jpg'; };
+    document.getElementById('modalDescricao').textContent = pet.descricao;
+    document.getElementById('modalLocal').textContent = pet.localizacao;
+    document.getElementById('modalIdade').textContent = pet.idade;
+    document.getElementById('modalPorte').textContent = pet.porte.charAt(0).toUpperCase()+pet.porte.slice(1);
+    document.getElementById('modalSexo').textContent = pet.sexo;
+    document.getElementById('modalBadges').innerHTML = `
+        <span class="pet-badge badge-${pet.tipo}" style="background:${pet.tipo==='cachorro'?'#fff0e6':'#f0e6ff'};color:${pet.tipo==='cachorro'?'#cc5500':'#6600cc'}">${emoji} ${pet.tipo.charAt(0).toUpperCase()+pet.tipo.slice(1)}</span>
+        <span class="pet-badge" style="background:#fff8e6;color:#b87c00;">${idCat.charAt(0).toUpperCase()+idCat.slice(1)}</span>`;
+    document.getElementById('modalStatusBadge').innerHTML =
+        `<span class="pet-badge badge-${pet.status}" style="font-size:13px;padding:6px 16px;"><span class="status-dot dot-${pet.status}"></span>${pet.status}</span>`;
+    document.getElementById('modalVacinas').innerHTML = pet.vacinado
+        ? '<span style="font-size:13px;color:#008833;"><i class="bi bi-check-circle-fill me-1"></i>Vacinação em dia</span>'
+        : '<span style="font-size:13px;color:#aaa;"><i class="bi bi-dash-circle me-1"></i>Aguarda vacinação</span>';
+    document.getElementById('modalCastrado').innerHTML = pet.castrado
+        ? '<span style="font-size:13px;color:#004499;"><i class="bi bi-check-circle-fill me-1"></i>Castrado(a)</span>'
+        : '<span style="font-size:13px;color:#aaa;"><i class="bi bi-dash-circle me-1"></i>Não castrado(a)</span>';
+    const btn = document.getElementById('btnAdotarModal');
+    btn.disabled = pet.status !== 'disponivel';
+    btn.innerHTML = pet.status === 'disponivel' ? '<i class="bi bi-heart me-2"></i>Quero Adotar' : 'Pet ' + pet.status;
+}
+
+function irParaAdocao() { resetModalScreens(2); }
+
+function resetModalScreens(n) {
+    for (let i = 1; i <= 3; i++) document.getElementById('modal-screen'+i).classList.toggle('active', i === n);
+    if (n === 2) {
+        const logado = Auth.isLoggedIn();
+        document.getElementById('adocao-sem-login').style.display = logado ? 'none' : 'block';
+        document.getElementById('adocao-com-login').style.display = logado ? 'block' : 'none';
+        if (logado) {
+            const sess = Auth.getSession();
+            const user = Auth.getUserById(sess.id);
+            document.getElementById('adocNome').value  = user?.nome  || sess.nome;
+            document.getElementById('adocEmail').value = user?.email || sess.email;
+        }
+    }
+}
+
+function enviarAdocao() {
+    const nome    = document.getElementById('adocNome').value.trim();
+    const email   = document.getElementById('adocEmail').value.trim();
+    const tel     = document.getElementById('adocTel').value.trim();
+    const moradia = document.getElementById('adocMoradia').value;
+    const termo   = document.getElementById('adocTermo').checked;
+    if (!nome || !email || !tel || !moradia) { alert('Preencha todos os campos obrigatórios.'); return; }
+    if (!termo) { alert('Aceite os termos de responsabilidade.'); return; }
+
+    const sol = Auth.addSolicitacao({
+        nome, email, petId: petAtual.id, petNome: petAtual.nome,
+        telefone: tel, moradia, motivo: document.getElementById('adocMotivo').value,
+        userId: Auth.getSession()?.id,
+    });
+
+    // Marca como reservado
+    Auth.updatePet(petAtual.id, { status: 'reservado' });
+
+    document.getElementById('adoc-protocolo').textContent = sol.id;
+    document.getElementById('adoc-sucesso-msg').textContent = `Obrigado, ${nome.split(' ')[0]}! Sua solicitação para adotar ${petAtual.nome} foi enviada. ❤️`;
+    renderGrid(Auth.getPets());
+    resetModalScreens(3);
+}
+
+// INIT
+const _allPets = Auth.getPets();
+console.log('[AdoPet] pets.html carregado. Total de pets no localStorage:', _allPets.length, _allPets.map(p => `#${p.id} ${p.nome}`));
+renderGrid(_allPets);
+</script>
+</body>
+</html>
