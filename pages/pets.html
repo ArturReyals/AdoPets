@@ -324,8 +324,8 @@ function renderGrid(pets) {
                 <p class="card-text text-muted mb-1" style="font-size:13px;">${emoji} ${pet.tipo.charAt(0).toUpperCase()+pet.tipo.slice(1)} · ${pet.idade} · ${idCat.charAt(0).toUpperCase()+idCat.slice(1)}</p>
                 <p class="card-text text-muted mb-3" style="font-size:13px;"><i class="bi bi-geo-alt"></i> ${pet.localizacao}</p>
                 <div class="d-flex gap-2 flex-wrap mb-3">
-                    ${pet.vacinado ? '<span class="pet-badge" style="background:#e6ffee;color:#008833;">💉 Vacinado</span>' : ''}
-                    ${pet.castrado ? '<span class="pet-badge" style="background:#e6f0ff;color:#004499;">✂️ Castrado</span>' : ''}
+                    ${pet.vacinado ? '<span class="pet-badge" style="background:#e6ffee;color:#008833;">Vacinado</span>' : ''}
+                    ${pet.castrado ? '<span class="pet-badge" style="background:#e6f0ff;color:#004499;">Castrado</span>' : ''}
                 </div>
                 <div class="d-flex justify-content-between">
                     <button class="btn btn-outline-secondary rounded-pill px-3" style="font-size:13px;" onclick="event.stopPropagation();abrirModal(${pet.id})">Conhecer</button>

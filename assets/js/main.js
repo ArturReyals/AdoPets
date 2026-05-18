@@ -16,9 +16,9 @@ if (btnMenu) {
     });
 }
 
-// ===========================
+
 // FILTROS CLICÁVEIS
-// ===========================
+
 
 // Estado atual dos filtros
 const filtros = {
