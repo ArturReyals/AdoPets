@@ -66,7 +66,7 @@ export default function Sobre() {
           </div>
           <div className="col-lg-6">
             <img
-              src="/assets/images/resgate.png"
+              src="../assets/images/resgate.jpg"
               alt="Equipe resgatando animais"
               style={{ width: '100%', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
             />
