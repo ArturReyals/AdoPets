@@ -267,23 +267,23 @@ export default function Pets() {
       <div className="container">
         <div style={{ background: 'white', borderRadius: '20px', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', padding: '20px 24px', marginTop: '-45px', position: 'relative', zIndex: 10, display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
           <select style={selectStyle} value={filtros.tipo} onChange={e => setFiltros(f => ({ ...f, tipo: e.target.value }))}>
-            <option value="">🐾 Tipo (Todos)</option>
-            <option value="cachorro">🐶 Cachorro</option>
-            <option value="gato">🐱 Gato</option>
+            <option value="">Tipo (Todos)</option>
+            <option value="cachorro">Cachorro</option>
+            <option value="gato">Gato</option>
           </select>
           <select style={selectStyle} value={filtros.idade} onChange={e => setFiltros(f => ({ ...f, idade: e.target.value }))}>
-            <option value="">📅 Idade (Todas)</option>
+            <option value="">Idade (Todas)</option>
             <option value="filhote">Filhote</option>
             <option value="adulto">Adulto</option>
           </select>
           <select style={selectStyle} value={filtros.porte} onChange={e => setFiltros(f => ({ ...f, porte: e.target.value }))}>
-            <option value="">📏 Porte (Todos)</option>
+            <option value="">Porte (Todos)</option>
             <option value="pequeno">Pequeno</option>
             <option value="medio">Médio</option>
             <option value="grande">Grande</option>
           </select>
           <select style={selectStyle} value={filtros.status} onChange={e => setFiltros(f => ({ ...f, status: e.target.value }))}>
-            <option value="">✅ Status (Todos)</option>
+            <option value="">Status (Todos)</option>
             <option value="disponivel">Disponível</option>
             <option value="reservado">Reservado</option>
           </select>
@@ -338,7 +338,7 @@ export default function Pets() {
                         </span>
                       </div>
                       <p className="text-muted mb-1" style={{ fontSize: '13px' }}>
-                        {pet.tipo === 'cachorro' ? '🐶' : '🐱'} {pet.tipo?.charAt(0).toUpperCase() + pet.tipo?.slice(1)} · {pet.idade}
+                        {pet.tipo === 'cachorro' ? '' : ''} {pet.tipo?.charAt(0).toUpperCase() + pet.tipo?.slice(1)} · {pet.idade}
                       </p>
                       <p className="text-muted mb-3" style={{ fontSize: '13px' }}>
                         <i className="bi bi-geo-alt"></i> {pet.localizacao}

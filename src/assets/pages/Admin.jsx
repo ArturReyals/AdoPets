@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   getPets, addPet, updatePet, deletePet, uploadImagem,
   getUsuarios, getSolicitacoes, updateSolicitacao,
+  getAgendamentos,
   logoutUsuario, escutarAuth, seedPets,
 } from '../../services/firebaseService';
 
@@ -35,6 +36,7 @@ function Sidebar({ aba, setAba, sessao, onSair }) {
     { key: 'cadastrar',    icon: 'bi-plus-circle',      label: 'Cadastrar Pet' },
     { key: 'solicitacoes', icon: 'bi-clipboard2-check', label: 'Solicitações' },
     { key: 'usuarios',     icon: 'bi-people',           label: 'Usuários' },
+    { key: 'agendamentos', icon: 'bi-calendar-check',   label: 'Agendamentos' },
   ];
   return (
     <div style={{ width: '240px', background: `linear-gradient(160deg,#7b1042,${ROSA})`, minHeight: '100vh', position: 'fixed', top: 0, left: 0, zIndex: 100, display: 'flex', flexDirection: 'column', boxShadow: '4px 0 20px rgba(166,28,93,0.18)' }}>
@@ -244,8 +246,12 @@ function CadastrarPet({ onRefresh, setAba }) {
       onRefresh();
       setTimeout(() => setAba('pets'), 1500);
     } catch (err) {
-      setAlerta({ msg: 'Erro ao cadastrar pet. Tente novamente.', tipo: 'danger' });
-      console.error(err);
+      console.error('Erro ao cadastrar pet:', err);
+      let msg = 'Erro ao cadastrar pet. Tente novamente.';
+      if (err?.code === 'storage/unauthorized') msg = '⚠️ Sem permissão no Storage. Use uma URL de imagem.';
+      else if (err?.code === 'permission-denied') msg = '⚠️ Sem permissão no Firestore. Verifique as regras.';
+      else if (err?.message) msg = 'Erro: ' + err.message;
+      setAlerta({ msg, tipo: 'danger' });
     } finally {
       setSalvando(false);
     }
@@ -411,6 +417,43 @@ function Usuarios({ users }) {
   );
 }
 
+
+// ── AGENDAMENTOS (admin) ──────────────────────────────────────────────────────
+function AgendamentosAdmin({ agends }) {
+  const solColor = { pendente: { bg: '#fff5e6', color: '#cc7700' }, confirmado: { bg: '#e6ffee', color: '#008833' }, cancelado: { bg: '#ffe6e6', color: '#cc0000' } };
+  return (
+    <div style={cardStyle}>
+      <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0f0f0' }}>
+        <h5 style={{ margin: 0, fontWeight: 700, color: '#333' }}><i className="bi bi-calendar-check me-2" style={{ color: ROSA }}></i>Agendamentos de Visita</h5>
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        {!agends.length ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#aaa' }}>
+            <i className="bi bi-calendar" style={{ fontSize: '40px' }}></i>
+            <p className="mt-2">Nenhum agendamento ainda.</p>
+          </div>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr>{['Protocolo','Nome','Data','Horário','Motivo','Status'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+            <tbody>
+              {agends.map(a => (
+                <tr key={a.id}>
+                  <td style={tdStyle}><span style={{ fontFamily: 'monospace', color: ROSA }}>{a.protocolo}</span></td>
+                  <td style={tdStyle}>{a.usuarioNome}<div style={{ fontSize: '11px', color: '#aaa' }}>{a.email}</div></td>
+                  <td style={tdStyle}>{a.data}</td>
+                  <td style={tdStyle}>{a.horario}</td>
+                  <td style={tdStyle}>{a.motivo || '—'}</td>
+                  <td style={tdStyle}><Badge status={a.status} map={solColor} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────────
 export default function Admin() {
   const navigate  = useNavigate();
@@ -419,12 +462,13 @@ export default function Admin() {
   const [pets, setPets]     = useState([]);
   const [users, setUsers]   = useState([]);
   const [sols, setSols]     = useState([]);
+  const [agends, setAgends] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
   const refresh = useCallback(async () => {
     try {
-      const [p, u, s] = await Promise.all([getPets(), getUsuarios(), getSolicitacoes()]);
-      setPets(p); setUsers(u); setSols(s);
+      const [p, u, s, a] = await Promise.all([getPets(), getUsuarios(), getSolicitacoes(), getAgendamentos()]);
+      setPets(p); setUsers(u); setSols(s); setAgends(a);
     } catch (err) {
       console.error('Erro ao carregar dados:', err);
     }
@@ -445,7 +489,7 @@ export default function Admin() {
     navigate('/login');
   }
 
-  const abaTitle = { dashboard: 'Dashboard', pets: 'Gerenciar Pets', cadastrar: 'Cadastrar Pet', solicitacoes: 'Solicitações', usuarios: 'Usuários' };
+  const abaTitle = { dashboard: 'Dashboard', pets: 'Gerenciar Pets', cadastrar: 'Cadastrar Pet', solicitacoes: 'Solicitações', usuarios: 'Usuários', agendamentos: 'Agendamentos' };
 
   if (carregando) {
     return (
@@ -476,6 +520,7 @@ export default function Admin() {
           {aba === 'cadastrar'    && <CadastrarPet onRefresh={refresh} setAba={setAba} />}
           {aba === 'solicitacoes' && <Solicitacoes sols={sols} onRefresh={refresh} />}
           {aba === 'usuarios'     && <Usuarios users={users} />}
+          {aba === 'agendamentos' && <AgendamentosAdmin agends={agends} />}
         </div>
       </div>
     </div>
