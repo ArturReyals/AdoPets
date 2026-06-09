@@ -5,7 +5,6 @@ import {
   getSolicitacoesByUsuario,
   getAgendamentosByUsuario,
   getDoacoesByUsuario,
-  // IMPORTANTE: Adicione estas duas funções no seu firebaseService
   buscarDadosUsuario, 
   atualizarDadosUsuario 
 } from '../../services/firebaseService';
@@ -14,7 +13,6 @@ const ROSA    = '#A61C5D';
 const AMARELO = '#ffd801';
 const CINZA   = '#f8f9fa';
 
-// --- Funções de Apoio permanecem iguais ---
 function formatData(ts) {
   if (!ts) return '—';
   if (ts.toDate) return ts.toDate().toLocaleDateString('pt-BR');
@@ -49,7 +47,6 @@ function CardVazio({ icone, texto, link, linkText }) {
   );
 }
 
-// --- Componentes das Abas ---
 function AbaAdocoes({ uid }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +92,6 @@ function AbaDoacoes({ uid }) {
   );
 }
 
-// --- Nova Aba de Perfil ---
 function AbaPerfil({ uid }) {
   const [formData, setFormData] = useState({ nome: '', telefone: '', endereco: '' });
   const [editando, setEditando] = useState(false);
@@ -139,7 +135,7 @@ function AbaPerfil({ uid }) {
   );
 }
 
-// ── Componente Principal ────────────────────────────────
+// ── Componente Principal ───
 export default function MinhaConta() {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);

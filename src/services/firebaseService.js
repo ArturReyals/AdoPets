@@ -1,4 +1,3 @@
-// src/services/firebaseService.js
 
 import {
   collection, doc, getDocs, getDoc,
@@ -22,7 +21,7 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 
 
 
-// ─── PETS ────────────────────────────────────────────────────────────────────
+// ─── PETS ────
 
 export async function getPets() {
   const snap = await getDocs(collection(db, 'pets'));
@@ -50,7 +49,7 @@ export async function deletePet(id) {
   await deleteDoc(doc(db, 'pets', id));
 }
 
-// ─── UPLOAD DE IMAGEM ────────────────────────────────────────────────────────
+// ─── UPLOAD DE IMAGEM ────
 
 export async function uploadImagem(file, folder = 'pets') {
   const nomeArquivo = `${folder}/${Date.now()}_${file.name}`;
@@ -59,7 +58,7 @@ export async function uploadImagem(file, folder = 'pets') {
   return await getDownloadURL(storageRef);
 }
 
-// ─── SOLICITAÇÕES DE ADOÇÃO (COM DADOS CADASTRAIS) ───────────────────────────
+// ─── SOLICITAÇÕES DE ADOÇÃO ─────
 
 export async function getSolicitacoes() {
   const snap = await getDocs(
@@ -100,7 +99,7 @@ export async function updateSolicitacao(id, novoStatus) {
   });
 }
 
-// ─── AGENDAMENTOS (COM DADOS CADASTRAIS) ─────────────────────────────────────
+// ─── AGENDAMENTOS  ─────
 
 export async function getAgendamentos() {
   const snap = await getDocs(
@@ -141,7 +140,7 @@ export async function updateAgendamento(id, dados) {
   });
 }
 
-// ─── DOAÇÕES ─────────────────────────────────────────────────────────────────
+// ─── DOAÇÕES ─────
 
 export async function getDoacoes() {
   const snap = await getDocs(
@@ -167,7 +166,7 @@ export async function addDoacao(dados) {
   });
 }
 
-// ─── AUTENTICAÇÃO E PERFIL ──────────────────────────────────────────────────
+// ─── AUTENTICAÇÃO E PERFIL ─────
 
 export async function cadastrarUsuario({ nome, email, senha, telefone, cpf, endereco }) {
   const cred = await createUserWithEmailAndPassword(auth, email, senha);
@@ -217,14 +216,13 @@ export async function atualizarDadosUsuario(uid, dados) {
   await updateDoc(doc(db, 'usuarios', uid), dados);
 }
 
-// ─── USUÁRIOS (admin) ────────────────────────────────────────────────────────
+// ─── USUÁRIOS (admin) ────
 
 export async function getUsuarios() {
   const snap = await getDocs(collection(db, 'usuarios'));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// ✅ FUNÇÃO RESTAURADA QUE ESTAVA FALTANDO
 export async function seedPets() {
   const SEED = [
     { nome:'Bolinha', tipo:'cachorro', sexo:'Macho', idade:'3 anos', porte:'medio', localizacao:'Fortaleza', descricao:'Bolinha é um cão dócil e brincalhão.', vacinado:true, castrado:false, foto:'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500&q=60', status:'disponivel' },

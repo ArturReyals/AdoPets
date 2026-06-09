@@ -38,7 +38,6 @@ export default function Sobre() {
         </div>
       </section>
 
-      {/* STATS */}
       <section className="container" style={{ marginTop: '40px', marginBottom: '60px' }}>
         <div className="row text-center g-4">
           {stats.map((s, i) => (

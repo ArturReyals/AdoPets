@@ -1,4 +1,4 @@
-// src/assets/pages/Login.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cadastrarUsuario, loginUsuario, escutarAuth, resetarSenha } from '../../services/firebaseService';
@@ -12,7 +12,7 @@ function maskCpf(v) { return v.replace(/\D/g,'').replace(/(\d{3})(\d)/,'$1.$2').
 export default function Login() {
   const navigate = useNavigate();
   const [aba, setAba] = useState('entrar');
-  const [esqueciSenha, setEsqueciSenha] = useState(false); // Novo estado
+  const [esqueciSenha, setEsqueciSenha] = useState(false); 
   const [alerta, setAlerta] = useState(null);
   const [loading, setLoading] = useState(false);
   const [senhaVis, setSenhaVis] = useState(false);
@@ -21,7 +21,6 @@ export default function Login() {
   const [loginForm, setLoginForm] = useState({ email: '', senha: '' });
   const [cadForm, setCadForm] = useState({ nome: '', email: '', tel: '', cpf: '', senha: '', confSenha: '', termo: false });
 
-  // Redireciona se já tiver sessão ativa
   useEffect(() => {
     const unsub = escutarAuth(usuario => {
       if (usuario) navigate(usuario.role === 'admin' ? '/admin' : '/');
@@ -60,8 +59,8 @@ export default function Login() {
       mostrarAlerta('✅ E-mail enviado!', 'success');
       setEsqueciSenha(false);
     } catch (err) {
-      console.error("Erro completo do Firebase:", err); // ISSO VAI MOSTRAR O ERRO NO CONSOLE (F12)
-      mostrarAlerta('Erro: ' + err.message); // Isso vai mostrar na tela o motivo real
+      console.error("Erro completo do Firebase:", err); 
+      mostrarAlerta('Erro: ' + err.message); 
     } finally {
       setLoading(false);
     }
@@ -96,7 +95,6 @@ export default function Login() {
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '60px 20px' }}>
       <div style={{ background: 'white', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.09)', width: '100%', maxWidth: '440px', overflow: 'hidden' }}>
 
-        {/* Banner */}
         <div style={{ background: AMARELO, padding: '28px 30px 70px', textAlign: 'center', position: 'relative' }}>
           <h2 style={{ color: ROSA, fontWeight: 800, fontSize: '1.6rem', margin: 0 }}>🐾 AdoPet</h2>
           <p style={{ color: ROSA, fontSize: '14px', margin: '6px 0 0', opacity: 0.85 }}>
@@ -108,7 +106,6 @@ export default function Login() {
         </div>
 
         <div style={{ padding: '56px 30px 36px' }}>
-          {/* Tabs */}
           <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: '12px', padding: '4px', marginBottom: '28px' }}>
             {['entrar', 'cadastrar'].map(tab => (
               <div key={tab} onClick={() => { setAba(tab); setAlerta(null); }} style={{ flex: 1, textAlign: 'center', padding: '9px', borderRadius: '10px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', background: aba === tab ? ROSA : 'transparent', color: aba === tab ? 'white' : '#888', transition: 'all 0.3s' }}>
@@ -121,90 +118,88 @@ export default function Login() {
             <div className={`alert alert-${alerta.tipo}`} style={{ fontSize: '13px', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px' }} dangerouslySetInnerHTML={{ __html: alerta.msg }} />
           )}
 
-          {/* LOGIN */}
           {aba === 'entrar' && (
-  esqueciSenha ? (
-    <>
-      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <i className="bi bi-envelope-check" style={{ fontSize: '40px', color: ROSA }}></i>
-        <h6 className="mt-3 fw-bold" style={{ color: ROSA }}>Recuperar Senha</h6>
-        <p style={{ fontSize: '14px', color: '#666' }}>Digite seu e-mail cadastrado e enviaremos um link de redefinição.</p>
-      </div>
-      
-      <div className="mb-4">
-        <label className="form-label fw-semibold" style={{ fontSize: '14px' }}>E-mail</label>
-        <input 
-          type="email" 
-          className="form-control" 
-          value={loginForm.email} 
-          onChange={e => setLoginForm(f => ({ ...f, email: e.target.value }))}
-          placeholder="seu@email.com" 
-          style={inputStyle} 
-        />
-      </div>
-      
-      <button 
-        onClick={handleResetSenha} 
-        disabled={loading} 
-        style={{ background: ROSA, color: 'white', borderRadius: '12px', border: 'none', fontWeight: 700, padding: '13px', fontSize: '15px', width: '100%', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
-      >
-        {loading ? <><span className="spinner-border spinner-border-sm me-2"></span>Enviando...</> : 'Enviar link de recuperação'}
-      </button>
-      
-      <button 
-        onClick={() => setEsqueciSenha(false)} 
-        className="btn btn-link w-100 mt-2" 
-        style={{ color: '#888', fontSize: '13px', textDecoration: 'none' }}
-      >
-        Voltar ao login
-      </button>
-    </>
-  ) : (
-    <>
-      <div className="mb-3">
-        <label className="form-label fw-semibold" style={{ fontSize: '14px' }}>E-mail</label>
-        <div className="input-group">
-          <span className="input-group-text" style={{ borderRadius: '12px 0 0 12px', border: '1.5px solid #e0e0e0', borderRight: 'none', background: 'white' }}>
-            <i className="bi bi-envelope" style={{ color: '#aaa' }}></i>
-          </span>
-          <input type="email" className="form-control" value={loginForm.email}
-            onChange={e => setLoginForm(f => ({ ...f, email: e.target.value }))}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            placeholder="seu@email.com"
-            style={{ borderRadius: '0 12px 12px 0', border: '1.5px solid #e0e0e0', borderLeft: 'none', fontSize: '14px' }} />
-        </div>
-      </div>
+            esqueciSenha ? (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <i className="bi bi-envelope-check" style={{ fontSize: '40px', color: ROSA }}></i>
+                  <h6 className="mt-3 fw-bold" style={{ color: ROSA }}>Recuperar Senha</h6>
+                  <p style={{ fontSize: '14px', color: '#666' }}>Digite seu e-mail cadastrado e enviaremos um link de redefinição.</p>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="form-label fw-semibold" style={{ fontSize: '14px' }}>E-mail</label>
+                  <input 
+                    type="email" 
+                    className="form-control" 
+                    value={loginForm.email} 
+                    onChange={e => setLoginForm(f => ({ ...f, email: e.target.value }))}
+                    placeholder="seu@email.com" 
+                    style={inputStyle} 
+                  />
+                </div>
+                
+                <button 
+                  onClick={handleResetSenha} 
+                  disabled={loading} 
+                  style={{ background: ROSA, color: 'white', borderRadius: '12px', border: 'none', fontWeight: 700, padding: '13px', fontSize: '15px', width: '100%', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
+                >
+                  {loading ? <><span className="spinner-border spinner-border-sm me-2"></span>Enviando...</> : 'Enviar link de recuperação'}
+                </button>
+                
+                <button 
+                  onClick={() => setEsqueciSenha(false)} 
+                  className="btn btn-link w-100 mt-2" 
+                  style={{ color: '#888', fontSize: '13px', textDecoration: 'none' }}
+                >
+                  Voltar ao login
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="mb-3">
+                  <label className="form-label fw-semibold" style={{ fontSize: '14px' }}>E-mail</label>
+                  <div className="input-group">
+                    <span className="input-group-text" style={{ borderRadius: '12px 0 0 12px', border: '1.5px solid #e0e0e0', borderRight: 'none', background: 'white' }}>
+                      <i className="bi bi-envelope" style={{ color: '#aaa' }}></i>
+                    </span>
+                    <input type="email" className="form-control" value={loginForm.email}
+                      onChange={e => setLoginForm(f => ({ ...f, email: e.target.value }))}
+                      onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                      placeholder="seu@email.com"
+                      style={{ borderRadius: '0 12px 12px 0', border: '1.5px solid #e0e0e0', borderLeft: 'none', fontSize: '14px' }} />
+                  </div>
+                </div>
 
-      <div className="mb-2">
-        <label className="form-label fw-semibold" style={{ fontSize: '14px' }}>Senha</label>
-        <div className="input-group">
-          <span className="input-group-text" style={{ borderRadius: '12px 0 0 12px', border: '1.5px solid #e0e0e0', borderRight: 'none', background: 'white' }}>
-            <i className="bi bi-lock" style={{ color: '#aaa' }}></i>
-          </span>
-          <input type={senhaVis ? 'text' : 'password'} className="form-control" value={loginForm.senha}
-            onChange={e => setLoginForm(f => ({ ...f, senha: e.target.value }))}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            placeholder="Sua senha"
-            style={{ border: '1.5px solid #e0e0e0', borderLeft: 'none', borderRight: 'none', borderRadius: 0, fontSize: '14px' }} />
-          <button type="button" onClick={() => setSenhaVis(v => !v)}
-            style={{ border: '1.5px solid #e0e0e0', borderLeft: 'none', borderRadius: '0 12px 12px 0', background: 'white', cursor: 'pointer', padding: '0 12px' }}>
-            <i className={`bi ${senhaVis ? 'bi-eye-slash' : 'bi-eye'}`} style={{ color: '#888' }}></i>
-          </button>
-        </div>
-      </div>
+                <div className="mb-2">
+                  <label className="form-label fw-semibold" style={{ fontSize: '14px' }}>Senha</label>
+                  <div className="input-group">
+                    <span className="input-group-text" style={{ borderRadius: '12px 0 0 12px', border: '1.5px solid #e0e0e0', borderRight: 'none', background: 'white' }}>
+                      <i className="bi bi-lock" style={{ color: '#aaa' }}></i>
+                    </span>
+                    <input type={senhaVis ? 'text' : 'password'} className="form-control" value={loginForm.senha}
+                      onChange={e => setLoginForm(f => ({ ...f, senha: e.target.value }))}
+                      onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                      placeholder="Sua senha"
+                      style={{ border: '1.5px solid #e0e0e0', borderLeft: 'none', borderRight: 'none', borderRadius: 0, fontSize: '14px' }} />
+                    <button type="button" onClick={() => setSenhaVis(v => !v)}
+                      style={{ border: '1.5px solid #e0e0e0', borderLeft: 'none', borderRadius: '0 12px 12px 0', background: 'white', cursor: 'pointer', padding: '0 12px' }}>
+                      <i className={`bi ${senhaVis ? 'bi-eye-slash' : 'bi-eye'}`} style={{ color: '#888' }}></i>
+                    </button>
+                  </div>
+                </div>
 
-      <div className="text-end mb-4">
-        <span onClick={() => setEsqueciSenha(true)} style={{ color: ROSA, fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>Esqueceu sua senha?</span>
-      </div>
+                <div className="text-end mb-4">
+                  <span onClick={() => setEsqueciSenha(true)} style={{ color: ROSA, fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>Esqueceu sua senha?</span>
+                </div>
 
-      <button onClick={handleLogin} disabled={loading} style={{ background: ROSA, color: 'white', borderRadius: '12px', border: 'none', fontWeight: 700, padding: '13px', fontSize: '15px', width: '100%', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
-        {loading ? <><span className="spinner-border spinner-border-sm me-2"></span>Entrando...</> : <><i className="bi bi-box-arrow-in-right me-2"></i>Entrar</>}
-      </button>
-    </>
-  )
-)}
+                <button onClick={handleLogin} disabled={loading} style={{ background: ROSA, color: 'white', borderRadius: '12px', border: 'none', fontWeight: 700, padding: '13px', fontSize: '15px', width: '100%', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+                  {loading ? <><span className="spinner-border spinner-border-sm me-2"></span>Entrando...</> : <><i className="bi bi-box-arrow-in-right me-2"></i>Entrar</>}
+                </button>
+              </>
+            )
+          )}
 
-          {/* CADASTRO */}
           {aba === 'cadastrar' && (
             <>
               <div className="row g-3">

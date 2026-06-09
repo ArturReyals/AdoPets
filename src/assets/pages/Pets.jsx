@@ -1,4 +1,4 @@
-// src/assets/pages/Pets.jsx
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getPets, addSolicitacao, escutarAuth, updatePet} from '../../services/firebaseService';
@@ -7,7 +7,6 @@ const ROSA   = '#A61C5D';
 const AMARELO = '#ffd801';
 const CINZA  = '#f8f9fa';
 
-// Imagem de fallback (online, sempre disponível)
 const IMG_FALLBACK = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500&q=60';
 
 function idadeCategoria(idStr) {
@@ -25,7 +24,7 @@ const statusStyle = {
 };
 const dotColor = { disponivel: '#22c55e', reservado: '#f59e0b', adotado: '#3b82f6' };
 
-// ── Modal do Pet ─────────────────────────────────────────────────────────────
+// ── Modal do Pet ────
 function ModalPet({ pet, onClose, logado, usuario }) {
   const [tela, setTela]         = useState(1);
   const [form, setForm]         = useState({ nome: usuario?.nome || '', email: usuario?.email || '', tel: '', cidade: '', moradia: '', motivo: '', termo: false });
@@ -47,7 +46,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
     
     setEnviando(true);
     try {
-      // 1. Cria a solicitação no banco
       await addSolicitacao({
         petId:       pet.id,
         petNome:     pet.nome,
@@ -57,7 +55,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
         motivo:      form.motivo,
       });
 
-      // 2. Atualiza o status do pet para 'reservado' imediatamente
       await updatePet(pet.id, { status: 'reservado' });
 
       setProtocolo('ADOC-' + Date.now().toString().slice(-6));
@@ -81,11 +78,9 @@ function ModalPet({ pet, onClose, logado, usuario }) {
         </div>
 
         <div style={{ padding: '24px' }}>
-          {/* Tela 1: Informações */}
           {tela === 1 && (
             <div className="row g-4">
               <div className="col-md-5">
-                {/* ✅ IMAGEM CORRIGIDA: usa a URL do Firestore/Storage */}
                 <img
                   src={pet.foto || IMG_FALLBACK}
                   alt={pet.nome}
@@ -130,7 +125,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
             </div>
           )}
 
-          {/* Tela 2: Formulário */}
           {tela === 2 && (
             <>
               {!logado ? (
@@ -191,7 +185,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
             </>
           )}
 
-          {/* Tela 3: Sucesso */}
           {tela === 3 && (
             <div className="text-center py-2">
               <div style={{ width: '80px', height: '80px', background: AMARELO, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -217,7 +210,7 @@ function ModalPet({ pet, onClose, logado, usuario }) {
   );
 }
 
-// ── Componente principal ─────────────────────────────────────────────────────
+
 export default function Pets() {
   const [pets, setPets]                 = useState([]);
   const [carregando, setCarregando]     = useState(true);
@@ -227,13 +220,11 @@ export default function Pets() {
   const [logado, setLogado]             = useState(false);
   const [usuario, setUsuario]           = useState(null);
 
-  // Observa sessão do Firebase Auth
   useEffect(() => {
     const unsub = escutarAuth(u => { setLogado(!!u); setUsuario(u); });
     return unsub;
   }, []);
 
-  // Busca pets do Firestore
   useEffect(() => {
     setCarregando(true);
     getPets()
@@ -242,7 +233,6 @@ export default function Pets() {
       .finally(() => setCarregando(false));
   }, []);
 
-  // Aplica filtros
   useEffect(() => {
     let res = pets;
     if (filtros.tipo)   res = res.filter(p => p.tipo === filtros.tipo);
@@ -269,7 +259,6 @@ export default function Pets() {
         </div>
       </section>
 
-      {/* FILTROS */}
       <div className="container">
         <div style={{ background: 'white', borderRadius: '20px', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', padding: '20px 24px', marginTop: '-45px', position: 'relative', zIndex: 10, display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
           <select style={selectStyle} value={filtros.tipo} onChange={e => setFiltros(f => ({ ...f, tipo: e.target.value }))}>
@@ -299,7 +288,6 @@ export default function Pets() {
         </div>
       </div>
 
-      {/* GRID */}
       <section className="container" style={{ marginTop: '50px', marginBottom: '100px' }}>
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
           <h4 className="fw-bold mb-0" style={{ color: '#333' }}>Pets Disponíveis</h4>
@@ -328,7 +316,6 @@ export default function Pets() {
                     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 12px 35px rgba(166,28,93,0.13)'; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.07)'; }}>
 
-                    {/* ✅ IMAGEM CORRIGIDA */}
                     <img
                       src={pet.foto || IMG_FALLBACK}
                       alt={pet.nome}

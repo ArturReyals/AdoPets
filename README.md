@@ -1,16 +1,55 @@
-# React + Vite
+--AdoPet
+Plataforma web para conectar pets disponíveis para adoção com potenciais adotantes, focada na região de Fortaleza e região metropolitana.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+--Sobre o Projeto
+O AdoPet é um sistema desenvolvido para facilitar o processo de adoção de animais. Ele permite que usuários busquem pets, agendem visitas, façam doações e que administradores gerenciem todo o fluxo de solicitações.
 
-Currently, two official plugins are available:
+--Tecnologias Utilizadas
+Frontend: React.js, React Router, Bootstrap (estilização).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Backend/Banco de Dados: Firebase (Firestore, Authentication, Storage).
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+--Funcionalidades
 
-## Expanding the ESLint configuration
+Usuário:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Cadastro e login com autenticação Firebase.
+
+Filtros inteligentes para busca de pets (tipo, idade, porte, status).
+
+Sistema de solicitações de adoção e agendamento de visitas.
+
+Área do usuário para acompanhar status (Adotado, Reservado, Pendente).
+
+Administrador:
+
+Dashboard com métricas de adoção.
+
+Gerenciamento completo de pets (CRUD: Criar, Ler, Atualizar, Deletar).
+
+Gerenciamento de solicitações de adoção e agendamentos.
+
+--Como rodar o projeto localmente
+Clone o repositório:
+
+Bash
+git clone https://github.com/ArturReyals/AdoPets
+cd adopet
+Instale as dependências:
+
+Bash
+npm install
+Configure o Firebase:
+
+Crie um arquivo .env na raiz e adicione suas credenciais do Firebase:
+
+Snippet de código
+REACT_APP_FIREBASE_API_KEY=sua-chave
+REACT_APP_FIREBASE_AUTH_DOMAIN=seu-dominio
+# ... adicione as outras variáveis
+Inicie o projeto:
+
+Bash
+npm npm run dev
+

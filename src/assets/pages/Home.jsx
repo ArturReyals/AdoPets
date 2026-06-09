@@ -21,7 +21,7 @@ const stepsData = [
   { id: 4, title: '4. Abrace',    icon: 'bi-house-heart',        desc: 'Leve seu novo melhor amigo para casa e dê muito amor!' },
 ];
 
-// ── Modal do Pet (Copiado da página Pets) ────────────────────────────────────
+// ── Modal do Pet ────
 function ModalPet({ pet, onClose, logado, usuario }) {
   const [tela, setTela]         = useState(1);
   const [form, setForm]         = useState({ nome: usuario?.nome || '', email: usuario?.email || '', tel: '', cidade: '', moradia: '', motivo: '', termo: false });
@@ -43,7 +43,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
     
     setEnviando(true);
     try {
-      // 1. Cria a solicitação no banco
       await addSolicitacao({
         petId:       pet.id,
         petNome:     pet.nome,
@@ -53,7 +52,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
         motivo:      form.motivo,
       });
 
-      // 2. Atualiza o status do pet para 'reservado' imediatamente
       await updatePet(pet.id, { status: 'reservado' });
 
       setProtocolo('ADOC-' + Date.now().toString().slice(-6));
@@ -77,7 +75,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
         </div>
 
         <div style={{ padding: '24px' }}>
-          {/* Tela 1: Informações */}
           {tela === 1 && (
             <div className="row g-4">
               <div className="col-md-5">
@@ -125,7 +122,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
             </div>
           )}
 
-          {/* Tela 2: Formulário */}
           {tela === 2 && (
             <>
               {!logado ? (
@@ -186,7 +182,6 @@ function ModalPet({ pet, onClose, logado, usuario }) {
             </>
           )}
 
-          {/* Tela 3: Sucesso */}
           {tela === 3 && (
             <div className="text-center py-2">
               <div style={{ width: '80px', height: '80px', background: AMARELO, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -212,19 +207,17 @@ function ModalPet({ pet, onClose, logado, usuario }) {
   );
 }
 
-// ── Componente Principal (Home) ──────────────────────────────────────────────
+// ── Componente Principal ─────
 export default function Home() {
   const navigate = useNavigate();
   
   const [ultimosPets, setUltimosPets] = useState([]);
   const [carregando, setCarregando] = useState(true);
   
-  // Estados para o Modal
   const [petSelecionado, setPetSelecionado] = useState(null);
   const [logado, setLogado] = useState(false);
   const [usuario, setUsuario] = useState(null);
 
-  // Verifica o status de autenticação
   useEffect(() => {
     const unsub = escutarAuth(u => {
       setLogado(!!u);
@@ -233,7 +226,6 @@ export default function Home() {
     return unsub;
   }, []);
 
-  // Busca os últimos 4 pets
   useEffect(() => {
     async function carregarPetsDestaque() {
       try {
@@ -260,7 +252,6 @@ export default function Home() {
 
   return (
     <>
-      {/* HERO SECTION */}
       <section style={{ backgroundColor: '#ffd801', padding: '80px 0 100px 0', textAlign: 'center' }}>
         <div className="container">
           <h1 style={{ color: '#A61C5D', fontWeight: 800, fontSize: '3rem' }}>Encontre o Seu Melhor Amigo Hoje!</h1>
@@ -270,7 +261,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PETS EM DESTAQUE */}
       <section className="container" style={{ marginTop: '60px', marginBottom: '80px' }}>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h3 style={{ color: '#333', fontWeight: 'bold', margin: 0 }}>Pets em Destaque</h3>
@@ -332,7 +322,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* COMO FUNCIONA */}
       <section className="container" style={{ marginTop: '80px', marginBottom: '80px', textAlign: 'center' }}>
         <h3 style={{ color: '#333', fontWeight: 'bold', marginBottom: '50px' }}>Como Funciona a Adoção</h3>
         <div className="row g-4">
@@ -363,7 +352,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SEÇÃO DE CHAMADA PARA DOAÇÕES */}
       <section style={{ backgroundColor: '#ffd801', padding: '60px 0', textAlign: 'center' }}>
         <div className="container">
           <h3 style={{ color: '#A61C5D', fontWeight: 800, fontSize: '2rem' }}>Ajude com uma Doação</h3>
@@ -380,7 +368,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RENDEREIZAÇÃO DO MODAL QUANDO UM PET FOR SELECIONADO */}
       {petSelecionado && (
         <ModalPet 
           pet={petSelecionado} 

@@ -1,4 +1,4 @@
-// src/assets/pages/Agendamento.jsx
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { addAgendamento, escutarAuth, getAgendamentos } from '../../services/firebaseService';
@@ -86,7 +86,6 @@ export default function Agendamento() {
   const [usuario, setUsuario] = useState(null);
   const [stages, setStages] = useState({ enviado: true, analise: false, confirmado: false, lembrete: false, visita: false });
   
-  // ✅ Estado novo para armazenar a lista de agendamentos reais vindos do banco
   const [agendamentosDoBanco, setAgendamentosDoBanco] = useState([]);
 
   useEffect(() => {
@@ -97,12 +96,11 @@ export default function Agendamento() {
     return unsub;
   }, []);
 
-  // ✅ Busca os agendamentos salvos no banco para saber o que bloquear
   useEffect(() => {
     getAgendamentos()
       .then(setAgendamentosDoBanco)
       .catch(console.error);
-  }, [tela]); // Recarrega se o fluxo mudar para atualizar horários novos
+  }, [tela]); 
 
   function handleForm(e) {
     const { name, value } = e.target;
@@ -131,7 +129,7 @@ export default function Agendamento() {
           data:       dataStr,
           horario:    horarioSel,
           dataISO:    diaSel.toISOString(),
-          status:     'pendente', // Garante o status correto inicial
+          status:     'pendente', 
         });
         const prot = '#AGD-' + Math.floor(1000 + Math.random() * 9000);
         setProtocolo(prot);
@@ -152,7 +150,6 @@ export default function Agendamento() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ✅ LÓGICA DE BLOQUEIO DINÂMICO: Descobre quais horários estão ocupados na data escolhida
   const obterHorariosOcupados = () => {
     if (!diaSel) return [];
     const dataAlvoStr = diaSel.toLocaleDateString('pt-BR');

@@ -1,4 +1,3 @@
-// src/assets/pages/Admin.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -28,7 +27,7 @@ function Badge({ status, map }) {
   return <span style={{ background: s.bg, color: s.color, borderRadius: '20px', padding: '3px 10px', fontSize: '11px', fontWeight: 700, textTransform: 'capitalize' }}>{status}</span>;
 }
 
-// ── SIDEBAR ──────────────────────────────────────────────────────────────────
+// ── SIDEBAR ────
 function Sidebar({ aba, setAba, sessao, onSair }) {
   const navs = [
     { key: 'dashboard',    icon: 'bi-speedometer2',     label: 'Dashboard' },
@@ -68,7 +67,7 @@ function Sidebar({ aba, setAba, sessao, onSair }) {
   );
 }
 
-// ── DASHBOARD ────────────────────────────────────────────────────────────────
+// ── DASHBOARD ───
 function Dashboard({ pets, users, sols, setAba }) {
   const stats = [
     { val: pets.length,                                      label: 'Total de Pets',  icon: 'bi-heart-fill',       bg: '#fff0f5', color: ROSA },
@@ -104,7 +103,7 @@ function Dashboard({ pets, users, sols, setAba }) {
   );
 }
 
-// ── GERENCIAR PETS ───────────────────────────────────────────────────────────
+// ── GERENCIAR PETS ────
 function GerenciarPets({ pets, onRefresh, setAba }) {
   const [busca, setBusca]       = useState('');
   const [editando, setEditando] = useState(null);
@@ -206,7 +205,7 @@ function GerenciarPets({ pets, onRefresh, setAba }) {
   );
 }
 
-// ── CADASTRAR PET (Modificado para Base64) ───────────────────────────────────
+// ── CADASTRAR PET  ───
 function CadastrarPet({ onRefresh, setAba }) {
   const [form, setForm] = useState({ nome: '', tipo: 'cachorro', sexo: 'Macho', idade: '', porte: 'medio', localizacao: 'Fortaleza', descricao: '', foto: '', status: 'disponivel', vacinado: false, castrado: false });
   const [alerta, setAlerta] = useState(null);
@@ -282,12 +281,12 @@ function CadastrarPet({ onRefresh, setAba }) {
             </div>
           ))}
 
-          {/* UPLOAD DE IMAGEM */}
-          <div className="col-12">
-            <label className="form-label fw-semibold" style={{ fontSize: '13px' }}>Foto do Pet</label>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-              <div>
-                <input type="file" accept="image/*" onChange={handleArquivo} className="form-control" style={{ ...inputStyle, width: 'auto' }} />
+          
+      <div className="col-12">
+        <label className="form-label fw-semibold" style={{ fontSize: '13px' }}>Foto do Pet</label>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <div>
+              <input type="file" accept="image/*" onChange={handleArquivo} className="form-control" style={{ ...inputStyle, width: 'auto' }} />
                 
                 
               </div>
@@ -337,27 +336,24 @@ function CadastrarPet({ onRefresh, setAba }) {
   );
 }
 
-// ── SOLICITAÇÕES ─────────────────────────────────────────────────────────────
+// ── SOLICITAÇÕES ────
 function Solicitacoes({ sols, onRefresh }) {
   const [filtro, setFiltro]     = useState('todas');
   const [atualizando, setAtualizando] = useState(null);
   const filtrados = filtro === 'todas' ? sols : sols.filter(s => s.status === filtro);
 
-  // 🔥 NOVIDADE: Agora a função recebe o petId
   async function mudarStatus(solicitacaoId, novoStatus, petId) {
     setAtualizando(solicitacaoId);
     try {
-      // 1. Atualiza se a solicitação foi aprovada ou rejeitada
       await updateSolicitacao(solicitacaoId, novoStatus);
 
-      // 2. Atualiza o status do Pet no banco de dados
       if (novoStatus === 'aprovado') {
         await updatePet(petId, { status: 'adotado' });
       } else if (novoStatus === 'rejeitado') {
         await updatePet(petId, { status: 'disponivel' });
       }
 
-      onRefresh(); // Recarrega os dados da tela
+      onRefresh(); 
     } catch { alert('Erro ao atualizar.'); }
     finally { setAtualizando(null); }
   }
@@ -392,7 +388,6 @@ function Solicitacoes({ sols, onRefresh }) {
                   <td style={tdStyle}>
                     {s.status === 'pendente' && (
                       <div style={{ display: 'flex', gap: '6px' }}>
-                        {/* 🔥 NOVIDADE: Passando o s.petId nos botões */}
                         <button onClick={() => mudarStatus(s.id, 'aprovado', s.petId)} disabled={atualizando === s.id}
                           style={{ background: '#e6ffee', color: '#008833', border: 'none', borderRadius: '8px', padding: '4px 10px', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}>✓ Aprovar</button>
                         
@@ -411,7 +406,7 @@ function Solicitacoes({ sols, onRefresh }) {
   );
 }
 
-// ── USUÁRIOS ─────────────────────────────────────────────────────────────────
+// ── USUÁRIOS ───
 function Usuarios({ users }) {
   return (
     <div style={cardStyle}>
@@ -438,16 +433,16 @@ function Usuarios({ users }) {
   );
 }
 
-// ── AGENDAMENTOS (admin) ──────────────────────────────────────────────────────
+// ── AGENDAMENTOS ─────
 function AgendamentosAdmin({ agends, onRefresh }) {
   const [atualizando, setAtualizando] = useState(null);
-  const [modalRecusa, setModalRecusa] = useState(null); // Guarda o agendamento que está sendo recusado
+  const [modalRecusa, setModalRecusa] = useState(null); 
 
   const solColor = { 
     pendente: { bg: '#fff5e6', color: '#cc7700' }, 
     confirmado: { bg: '#e6ffee', color: '#008833' }, 
     cancelado: { bg: '#ffe6e6', color: '#cc0000' },
-    bloqueado: { bg: '#f0f0f0', color: '#555' } // Novo status para horários bloqueados permanentemente
+    bloqueado: { bg: '#f0f0f0', color: '#555' } 
   };
 
   async function aprovar(id) {
@@ -463,13 +458,12 @@ function AgendamentosAdmin({ agends, onRefresh }) {
     const id = modalRecusa.id;
     setAtualizando(id);
     try {
-      // Se 'liberar' for true, o status vira 'cancelado' (deixa o horário livre no calendário do usuário)
-      // Se 'liberar' for false, o status vira 'bloqueado' (mantém o horário ocupado)
       await updateAgendamento(id, { status: liberar ? 'cancelado' : 'bloqueado' });
       setModalRecusa(null);
       onRefresh();
     } catch {  }
     finally { setAtualizando(null); }
+    onRefresh(); 
   }
 
   return (
@@ -513,7 +507,6 @@ function AgendamentosAdmin({ agends, onRefresh }) {
         )}
       </div>
 
-      {/* MODAL DE DECISÃO DE RECUSA (BLOQUEAR OU LIBERAR HORÁRIO) */}
       {modalRecusa && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '16px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
@@ -523,10 +516,10 @@ function AgendamentosAdmin({ agends, onRefresh }) {
             </p>
             <div className="d-flex flex-column gap-2 mt-4">
               <button onClick={() => confirmarRecusa(true)} disabled={atualizando} className="btn w-100" style={{ background: '#e6ffee', color: '#008833', fontWeight: 'bold', borderRadius: '10px' }}>
-                <i className="bi bi-unlock-fill me-2"></i> Liberar Horário (Fica disponível)
+                <i className="bi bi-unlock-fill me-2"></i> Liberar Horário 
               </button>
               <button onClick={() => confirmarRecusa(false)} disabled={atualizando} className="btn w-100" style={{ background: '#ffe6e6', color: '#cc0000', fontWeight: 'bold', borderRadius: '10px' }}>
-                <i className="bi bi-lock-fill me-2"></i> Bloquear Horário (Ninguém mais agenda)
+                <i className="bi bi-lock-fill me-2"></i> Bloquear Horário 
               </button>
               <button onClick={() => setModalRecusa(null)} className="btn btn-outline-secondary w-100 mt-2" style={{ borderRadius: '10px' }}>
                 Cancelar
@@ -539,7 +532,7 @@ function AgendamentosAdmin({ agends, onRefresh }) {
   );
 }
 
-// ── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────────
+// ── COMPONENTE PRINCIPAL ───
 export default function Admin() {
   const navigate  = useNavigate();
   const [aba, setAba]       = useState('dashboard');
